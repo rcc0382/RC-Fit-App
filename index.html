@@ -111,6 +111,11 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    // Enable Firebase's native offline caching/sync engine
+    db.enablePersistence().catch((err) => {
+        console.warn("Firebase offline persistence error:", err.code);
+    });
+
     // --- ICONS ---
     const IconUser = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
     const IconUsers = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
@@ -129,6 +134,57 @@
     const IconActivity = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
     const IconMaximize = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>;
     const IconQuote = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1.5.5 1.5 1.5L5 15c0 3-2 6-2 6z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.5c0 1-.5 1.5-1.5 1.5-.5 0-1 .5-1 1.5L17 15c0 3-2 6-2 6z"></path></svg>;
+
+    // --- DIGITAL BIOMECHANICAL FIGURE ENGINE ---
+    const POSE_DATA = {
+        'squat': {
+            start: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="65" y2="45" stroke={c} strokeWidth="4"/></>,
+            end: (c) => <><circle cx="40" cy="40" r="8" fill={c}/><line x1="40" y1="48" x2="30" y2="70" stroke={c} strokeWidth="4"/><line x1="30" y1="70" x2="55" y2="70" stroke={c} strokeWidth="4"/><line x1="55" y1="70" x2="50" y2="95" stroke={c} strokeWidth="4"/><line x1="40" y1="55" x2="55" y2="50" stroke={c} strokeWidth="4"/></>
+        },
+        'hinge': {
+            start: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="65" y2="55" stroke={c} strokeWidth="4"/></>,
+            end: (c) => <><circle cx="25" cy="40" r="8" fill={c}/><line x1="25" y1="48" x2="55" y2="55" stroke={c} strokeWidth="4"/><line x1="55" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="50" x2="40" y2="80" stroke={c} strokeWidth="4"/></>
+        },
+        'supine-press': { 
+            start: (c) => <><circle cx="50" cy="25" r="8" fill={c}/><line x1="50" y1="33" x2="50" y2="60" stroke={c} strokeWidth="4"/><line x1="50" y1="40" x2="35" y2="40" stroke={c} strokeWidth="4"/><line x1="35" y1="40" x2="35" y2="20" stroke={c} strokeWidth="4"/><line x1="50" y1="60" x2="70" y2="60" stroke={c} strokeWidth="4"/><line x1="70" y1="60" x2="70" y2="80" stroke={c} strokeWidth="4"/><line x1="10" y1="65" x2="90" y2="65" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>,
+            end: (c) => <><circle cx="50" cy="25" r="8" fill={c}/><line x1="50" y1="33" x2="50" y2="60" stroke={c} strokeWidth="4"/><line x1="50" y1="40" x2="35" y2="15" stroke={c} strokeWidth="4"/><line x1="50" y1="60" x2="70" y2="60" stroke={c} strokeWidth="4"/><line x1="70" y1="60" x2="70" y2="80" stroke={c} strokeWidth="4"/><line x1="10" y1="65" x2="90" y2="65" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>
+        },
+        'seated-pull': {
+            start: (c) => <><circle cx="40" cy="25" r="8" fill={c}/><line x1="40" y1="33" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="40" x2="65" y2="15" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>,
+            end: (c) => <><circle cx="35" cy="25" r="8" fill={c}/><line x1="35" y1="33" x2="35" y2="65" stroke={c} strokeWidth="4"/><line x1="35" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="35" y1="40" x2="20" y2="40" stroke={c} strokeWidth="4"/><line x1="20" y1="40" x2="45" y2="40" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>
+        },
+        'seated-press': {
+            start: (c) => <><circle cx="40" cy="25" r="8" fill={c}/><line x1="40" y1="33" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="40" x2="30" y2="40" stroke={c} strokeWidth="4"/><line x1="30" y1="40" x2="30" y2="20" stroke={c} strokeWidth="4"/><polyline points="30,20 30,65 50,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>,
+            end: (c) => <><circle cx="40" cy="25" r="8" fill={c}/><line x1="40" y1="33" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="40" x2="40" y2="10" stroke={c} strokeWidth="4"/><polyline points="30,20 30,65 50,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>
+        },
+        'curl': {
+            start: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="50" y2="55" stroke={c} strokeWidth="4"/></>,
+            end: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="65" y2="35" stroke={c} strokeWidth="4"/></>
+        },
+        'core': {
+            start: (c) => <><circle cx="25" cy="80" r="8" fill={c}/><line x1="33" y1="80" x2="60" y2="80" stroke={c} strokeWidth="4"/><line x1="60" y1="80" x2="70" y2="60" stroke={c} strokeWidth="4"/><line x1="70" y1="60" x2="90" y2="80" stroke={c} strokeWidth="4"/><line x1="40" y1="80" x2="40" y2="50" stroke={c} strokeWidth="4"/><line x1="10" y1="90" x2="90" y2="90" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>,
+            end: (c) => <><circle cx="25" cy="80" r="8" fill={c}/><line x1="33" y1="80" x2="60" y2="80" stroke={c} strokeWidth="4"/><line x1="60" y1="80" x2="80" y2="80" stroke={c} strokeWidth="4"/><line x1="80" y1="80" x2="80" y2="60" stroke={c} strokeWidth="4"/><line x1="40" y1="80" x2="20" y2="50" stroke={c} strokeWidth="4"/><line x1="10" y1="90" x2="90" y2="90" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>
+        },
+        'leg-ext': {
+            start: (c) => <><circle cx="40" cy="30" r="8" fill={c}/><line x1="40" y1="38" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="45" x2="55" y2="45" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65 40,90" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>,
+            end: (c) => <><circle cx="40" cy="30" r="8" fill={c}/><line x1="40" y1="38" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="90" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="45" x2="55" y2="45" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65 40,90" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>
+        }
+    };
+
+    function getPoseType(name) {
+        const n = name.toLowerCase();
+        if (n.includes('bench') || n.includes('flys')) return 'supine-press';
+        if (n.includes('shoulder press')) return 'seated-press';
+        if (n.includes('lateral raise') || n.includes('reverse flys')) return 'hinge'; // Fallback generic
+        if (n.includes('pull down') || n.includes('pull-in')) return 'seated-pull';
+        if (n.includes('row') || n.includes('rdl') || n.includes('deadlift') || n.includes('good morning') || n.includes('shrug') || n.includes('pull through') || n.includes('extension machine')) return 'hinge';
+        if (n.includes('squat') || n.includes('lunge') || n.includes('calf')) return 'squat';
+        if (n.includes('curl')) return 'curl';
+        if (n.includes('tricep') || n.includes('pushdown') || n.includes('dips')) return 'seated-press'; 
+        if (n.includes('leg ext')) return 'leg-ext';
+        if (n.includes('deadbug') || n.includes('tap') || n.includes('pallof')) return 'core';
+        return 'squat'; 
+    }
 
     // --- CONSTANTS & MAPPINGS ---
     const ROUTINE_ORDER = ['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
@@ -332,7 +388,7 @@
       const [showPlateCalc, setShowPlateCalc] = useState(false);
       const [showHeatmap, setShowHeatmap] = useState(null);
 
-      // FIREBASE SYNC EFFECT
+      // FIREBASE SYNC EFFECT ONLY
       useEffect(() => {
         let unsubscribeWorkouts = () => {};
         let unsubscribeSession = () => {};
@@ -403,14 +459,14 @@
 
       const handleSaveProgress = (users, sessionData) => {
         const stateToSave = { users, sessionData };
-        // Save paused session to the cloud instead of local storage
+        // Save paused session to the cloud natively
         db.collection('app_state').doc('active_session').set(stateToSave).catch(console.error);
         setView('dashboard');
         setActiveUsers([]);
       };
 
       const clearSavedSession = () => {
-        // Delete paused session from the cloud
+        // Delete paused session from the cloud natively
         db.collection('app_state').doc('active_session').delete().catch(()=>{});
       };
 
@@ -418,12 +474,12 @@
         try {
           if (editSession) {
               const payload = workoutDataPayloads[0];
-              // Update historical entry in the cloud
+              // Update historical entry in the cloud natively
               await db.collection('workouts').doc(editSession.id).update({
                   ...payload
               });
           } else {
-              // Add new workout to the cloud
+              // Add new workout to the cloud natively
               const batch = db.batch();
               for (const payload of workoutDataPayloads) {
                  const docRef = db.collection('workouts').doc(); 
