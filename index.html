@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Recomp Protocol Command Center</title>
   
-  <!-- PWA Meta Tags (Added for iOS & Android Native Feel) -->
+  <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-title" content="RC Fit">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- Fonts: Inter (UI), Roboto Mono (Numbers), Teko (Aggressive Headers) -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@400;700;900&family=Teko:wght@400;600;700&display=swap" rel="stylesheet">
@@ -21,19 +21,16 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Custom CSS for Glassmorphism, Colors, and Mechanical Animations -->
   <style>
     :root {
       --bg-dark: #121212;
       --bg-glass: rgba(25, 25, 25, 0.65);
       --border-glass: rgba(255, 255, 255, 0.06);
       
-      /* Robby: Electric Cyan & Neon Orange */
       --robby-primary: #00e5ff;
       --robby-secondary: #ff6a00;
       --robby-glow: rgba(0, 229, 255, 0.25);
 
-      /* Candice: Mint Green & Soft Lavender */
       --candice-primary: #00f2ad;
       --candice-secondary: #b58cff;
       --candice-glow: rgba(0, 242, 173, 0.25);
@@ -45,14 +42,12 @@
       background-image: 
         radial-gradient(circle at 15% 50%, rgba(255,255,255,0.015) 0%, transparent 50%),
         radial-gradient(circle at 85% 30%, rgba(255,255,255,0.015) 0%, transparent 50%);
-      /* Prevent pull-to-refresh on mobile */
       overscroll-behavior-y: none; 
     }
 
     .font-header { font-family: 'Teko', sans-serif; text-transform: uppercase; }
     .font-mono { font-family: 'Roboto Mono', monospace; }
     
-    /* Premium Glassmorphism */
     .glass-card {
       background: var(--bg-glass);
       backdrop-filter: blur(16px);
@@ -61,15 +56,12 @@
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
 
-    /* Glows */
     .glow-robby { border-color: rgba(0, 229, 255, 0.2); box-shadow: 0 0 20px var(--robby-glow), inset 0 0 10px rgba(0, 229, 255, 0.05); }
     .glow-candice { border-color: rgba(0, 242, 173, 0.2); box-shadow: 0 0 20px var(--candice-glow), inset 0 0 10px rgba(0, 242, 173, 0.05); }
 
-    /* Tactile Mechanical Buttons */
     .btn-press {
       transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       cursor: pointer;
-      /* Remove mobile tap highlight */
       -webkit-tap-highlight-color: transparent; 
     }
     .btn-press:active {
@@ -77,7 +69,6 @@
       filter: brightness(1.2);
     }
     
-    /* Scrollbar styling */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -88,7 +79,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   
-  <!-- Babel for JSX processing -->
+  <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- Firebase Compat Libraries -->
@@ -102,6 +93,23 @@
 
   <script type="text/babel">
     const { useState, useEffect, useMemo } = React;
+
+    // --- FIREBASE CLOUD INITIALIZATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBIYM8J5yqaE6HBBsTka_c5ISOhLcMFbdc",
+      authDomain: "rc-fit-database.firebaseapp.com",
+      projectId: "rc-fit-database",
+      storageBucket: "rc-fit-database.firebasestorage.app",
+      messagingSenderId: "923449525933",
+      appId: "1:923449525933:web:9fcb5a6de2475aadf36824",
+      measurementId: "G-QJJL74RBVF"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
     // --- ICONS ---
     const IconUser = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
@@ -119,30 +127,62 @@
     const IconEdit = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
     const IconCalculator = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="2" x2="8" y2="4"></line><line x1="16" y1="2" x2="16" y2="4"></line><line x1="4" y1="10" x2="20" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>;
     const IconActivity = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
-    const IconMaximize = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>;
     const IconQuote = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1.5.5 1.5 1.5L5 15c0 3-2 6-2 6z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.5c0 1-.5 1.5-1.5 1.5-.5 0-1 .5-1 1.5L17 15c0 3-2 6-2 6z"></path></svg>;
 
-    // --- LOCAL DB FALLBACK SETUP ---
-    let db = null;
-    let isLocalMode = true;
+    // --- DIGITAL BIOMECHANICAL FIGURE ENGINE ---
+    const POSE_DATA = {
+        'squat': {
+            start: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="65" y2="45" stroke={c} strokeWidth="4"/></>,
+            end: (c) => <><circle cx="40" cy="40" r="8" fill={c}/><line x1="40" y1="48" x2="30" y2="70" stroke={c} strokeWidth="4"/><line x1="30" y1="70" x2="55" y2="70" stroke={c} strokeWidth="4"/><line x1="55" y1="70" x2="50" y2="95" stroke={c} strokeWidth="4"/><line x1="40" y1="55" x2="55" y2="50" stroke={c} strokeWidth="4"/></>
+        },
+        'hinge': {
+            start: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="65" y2="55" stroke={c} strokeWidth="4"/></>,
+            end: (c) => <><circle cx="25" cy="40" r="8" fill={c}/><line x1="25" y1="48" x2="55" y2="55" stroke={c} strokeWidth="4"/><line x1="55" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="50" x2="40" y2="80" stroke={c} strokeWidth="4"/></>
+        },
+        'supine-press': { 
+            start: (c) => <><circle cx="50" cy="25" r="8" fill={c}/><line x1="50" y1="33" x2="50" y2="60" stroke={c} strokeWidth="4"/><line x1="50" y1="40" x2="35" y2="40" stroke={c} strokeWidth="4"/><line x1="35" y1="40" x2="35" y2="20" stroke={c} strokeWidth="4"/><line x1="50" y1="60" x2="70" y2="60" stroke={c} strokeWidth="4"/><line x1="70" y1="60" x2="70" y2="80" stroke={c} strokeWidth="4"/><line x1="10" y1="65" x2="90" y2="65" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>,
+            end: (c) => <><circle cx="50" cy="25" r="8" fill={c}/><line x1="50" y1="33" x2="50" y2="60" stroke={c} strokeWidth="4"/><line x1="50" y1="40" x2="35" y2="15" stroke={c} strokeWidth="4"/><line x1="50" y1="60" x2="70" y2="60" stroke={c} strokeWidth="4"/><line x1="70" y1="60" x2="70" y2="80" stroke={c} strokeWidth="4"/><line x1="10" y1="65" x2="90" y2="65" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>
+        },
+        'seated-pull': {
+            start: (c) => <><circle cx="40" cy="25" r="8" fill={c}/><line x1="40" y1="33" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="40" x2="65" y2="15" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>,
+            end: (c) => <><circle cx="35" cy="25" r="8" fill={c}/><line x1="35" y1="33" x2="35" y2="65" stroke={c} strokeWidth="4"/><line x1="35" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="35" y1="40" x2="20" y2="40" stroke={c} strokeWidth="4"/><line x1="20" y1="40" x2="45" y2="40" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>
+        },
+        'seated-press': {
+            start: (c) => <><circle cx="40" cy="25" r="8" fill={c}/><line x1="40" y1="33" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="40" x2="30" y2="40" stroke={c} strokeWidth="4"/><line x1="30" y1="40" x2="30" y2="20" stroke={c} strokeWidth="4"/><polyline points="30,20 30,65 50,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>,
+            end: (c) => <><circle cx="40" cy="25" r="8" fill={c}/><line x1="40" y1="33" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="40" x2="40" y2="10" stroke={c} strokeWidth="4"/><polyline points="30,20 30,65 50,65" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>
+        },
+        'curl': {
+            start: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="50" y2="55" stroke={c} strokeWidth="4"/></>,
+            end: (c) => <><circle cx="50" cy="20" r="8" fill={c}/><line x1="50" y1="28" x2="50" y2="55" stroke={c} strokeWidth="4"/><line x1="50" y1="55" x2="50" y2="90" stroke={c} strokeWidth="4"/><line x1="50" y1="35" x2="65" y2="35" stroke={c} strokeWidth="4"/></>
+        },
+        'core': {
+            start: (c) => <><circle cx="25" cy="80" r="8" fill={c}/><line x1="33" y1="80" x2="60" y2="80" stroke={c} strokeWidth="4"/><line x1="60" y1="80" x2="70" y2="60" stroke={c} strokeWidth="4"/><line x1="70" y1="60" x2="90" y2="80" stroke={c} strokeWidth="4"/><line x1="40" y1="80" x2="40" y2="50" stroke={c} strokeWidth="4"/><line x1="10" y1="90" x2="90" y2="90" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>,
+            end: (c) => <><circle cx="25" cy="80" r="8" fill={c}/><line x1="33" y1="80" x2="60" y2="80" stroke={c} strokeWidth="4"/><line x1="60" y1="80" x2="80" y2="80" stroke={c} strokeWidth="4"/><line x1="80" y1="80" x2="80" y2="60" stroke={c} strokeWidth="4"/><line x1="40" y1="80" x2="20" y2="50" stroke={c} strokeWidth="4"/><line x1="10" y1="90" x2="90" y2="90" stroke="rgba(255,255,255,0.2)" strokeWidth="4"/></>
+        },
+        'leg-ext': {
+            start: (c) => <><circle cx="40" cy="30" r="8" fill={c}/><line x1="40" y1="38" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="65" y2="90" stroke={c} strokeWidth="4"/><line x1="40" y1="45" x2="55" y2="45" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65 40,90" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>,
+            end: (c) => <><circle cx="40" cy="30" r="8" fill={c}/><line x1="40" y1="38" x2="40" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="65" x2="65" y2="65" stroke={c} strokeWidth="4"/><line x1="65" y1="65" x2="90" y2="65" stroke={c} strokeWidth="4"/><line x1="40" y1="45" x2="55" y2="45" stroke={c} strokeWidth="4"/><polyline points="20,65 40,65 40,90" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none"/></>
+        }
+    };
+
+    function getPoseType(name) {
+        const n = name.toLowerCase();
+        if (n.includes('bench') || n.includes('flys')) return 'supine-press';
+        if (n.includes('shoulder press')) return 'seated-press';
+        if (n.includes('lateral raise') || n.includes('reverse flys')) return 'hinge'; // Fallback generic
+        if (n.includes('pull down') || n.includes('pull-in')) return 'seated-pull';
+        if (n.includes('row') || n.includes('rdl') || n.includes('deadlift') || n.includes('good morning') || n.includes('shrug') || n.includes('pull through') || n.includes('extension machine')) return 'hinge';
+        if (n.includes('squat') || n.includes('lunge') || n.includes('calf')) return 'squat';
+        if (n.includes('curl')) return 'curl';
+        if (n.includes('tricep') || n.includes('pushdown') || n.includes('dips')) return 'seated-press'; 
+        if (n.includes('leg ext')) return 'leg-ext';
+        if (n.includes('deadbug') || n.includes('tap') || n.includes('pallof')) return 'core';
+        return 'squat'; 
+    }
 
     // --- CONSTANTS & MAPPINGS ---
     const ROUTINE_ORDER = ['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
 
-    const DAILY_TIPS = [
-      "Focus on the eccentric (lowering) phase of your lifts. Control the weight for 2-3 seconds down to maximize hypertrophy.",
-      "Brace your core before every compound lift like you're about to be punched in the stomach. This protects your spine and transfers power.",
-      "Recomposition requires patience. The scale might not move, but your clothes will fit differently as fat drops and muscle grows.",
-      "Mind-muscle connection matters. Actively visualize and squeeze the muscle you're trying to target during the rep.",
-      "Rest is when you grow. Stick strictly to your 60-120 second rest timers to ensure ATP replenishment for the next heavy set.",
-      "Candice: For deep core rebuilds, avoid 'coning' or bulging in your stomach during Deadbugs. Keep the lower back glued to the floor.",
-      "Robby: On heavy pressing days, pull your shoulder blades down and back into the bench to create a stable, safe pressing platform.",
-      "Hydration check: Dehydration by just 2% can drop your strength output by up to 10%. Drink up before and during the session.",
-      "Progressive overload isn't just weight. Doing the same weight for one more rep, or with better form, is still progress.",
-      "Don't skip the deep stretch. The stretch position under load (like the bottom of a DB fly) is highly stimulative for muscle growth."
-    ];
-
-    // Muscular Anatomy Mapping for Heatmap & Image Routing
     const EXERCISE_MUSCLE_MAP = {
       'Incline DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
       'Flat DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
@@ -182,26 +222,6 @@
       'Heel Taps': ['Transverse Abdominis', 'Rectus Abdominis']
     };
 
-    // Helper function to map an exercise to an appropriate Unsplash thumbnail image
-    const getExerciseImage = (name) => {
-        const lower = name.toLowerCase();
-        if (lower.includes('squat') || lower.includes('lunge') || lower.includes('leg ext') || lower.includes('calf')) 
-           return 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('deadlift') || lower.includes('rdl') || lower.includes('good morning') || lower.includes('pull through') || lower.includes('extension machine')) 
-           return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('bench') || lower.includes('press') || lower.includes('fly') || lower.includes('pushdown') || lower.includes('dips')) 
-           return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('row') || lower.includes('pull') || lower.includes('shrug')) 
-           return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('curl') || lower.includes('raise')) 
-           return 'https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('deadbug') || lower.includes('pallof') || lower.includes('tap') || lower.includes('core')) 
-           return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80';
-        
-        return 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80'; // fallback
-    }
-
-    // --- ROUTINE DATABASE ---
     const ROUTINE = [
       {
         id: 'Push 1',
@@ -296,7 +316,6 @@
           { text: "Vision creates faith and faith creates willpower. With faith there is no anxiety and no doubt - just absolute confidence in yourself.", author: "Arnold Schwarzenegger" }
         ];
 
-        // Calculate day of the year to pick a consistent daily quote without hitting an external API
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
         const selectedQuote = FITNESS_QUOTES[dayOfYear % FITNESS_QUOTES.length];
         
@@ -327,22 +346,35 @@
       const [savedSession, setSavedSession] = useState(null);
       const [editSession, setEditSession] = useState(null);
       const [showPlateCalc, setShowPlateCalc] = useState(false);
-      const [showHeatmap, setShowHeatmap] = useState(null); // 'Robby' | 'Candice' | null
+      const [showHeatmap, setShowHeatmap] = useState(null);
 
       useEffect(() => {
-        try {
-          const localData = localStorage.getItem('recomp_history');
-          if (localData) {
-            setWorkoutsDb(JSON.parse(localData));
-          }
-          const savedProgress = localStorage.getItem('recomp_active_session');
-          if (savedProgress) {
-             setSavedSession(JSON.parse(savedProgress));
-          }
-        } catch (err) {
-          console.error("Local storage error:", err);
-        }
-        setLoading(false);
+        auth.signInAnonymously().catch(console.error);
+
+        const unsubWorkouts = db.collection('workouts')
+          .orderBy('date', 'desc')
+          .onSnapshot(snapshot => {
+             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             setWorkoutsDb(data);
+             setLoading(false);
+          }, err => {
+             console.error("Firestore error:", err);
+             setLoading(false); 
+          });
+
+        const unsubSession = db.collection('app_state').doc('active_session')
+          .onSnapshot(doc => {
+             if (doc.exists) {
+                 setSavedSession(doc.data());
+             } else {
+                 setSavedSession(null);
+             }
+          });
+
+        return () => {
+           unsubWorkouts();
+           unsubSession();
+        };
       }, []);
 
       const getNextWorkoutId = (username) => {
@@ -378,49 +410,34 @@
 
       const handleSaveProgress = (users, sessionData) => {
         const stateToSave = { users, sessionData };
-        localStorage.setItem('recomp_active_session', JSON.stringify(stateToSave));
-        setSavedSession(stateToSave);
+        db.collection('app_state').doc('active_session').set(stateToSave).catch(console.error);
         setView('dashboard');
         setActiveUsers([]);
       };
 
       const clearSavedSession = () => {
-        localStorage.removeItem('recomp_active_session');
-        setSavedSession(null);
+        db.collection('app_state').doc('active_session').delete().catch(()=>{});
       };
 
-      const handleFinishWorkout = (workoutDataPayloads) => {
+      const handleFinishWorkout = async (workoutDataPayloads) => {
         try {
-          const newWorkouts = [...workoutsDb];
-          
           if (editSession) {
               const payload = workoutDataPayloads[0];
-              const index = newWorkouts.findIndex(w => w.id === editSession.id);
-              if (index !== -1) {
-                  newWorkouts[index] = {
-                      ...newWorkouts[index],
-                      ...payload,
-                      date: editSession.date, // Retain original date
-                      id: editSession.id      // Retain original ID
-                  };
-              }
+              await db.collection('workouts').doc(editSession.id).update({
+                  ...payload
+              });
           } else {
+              const batch = db.batch();
               for (const payload of workoutDataPayloads) {
-                 newWorkouts.unshift({
+                 const docRef = db.collection('workouts').doc(); 
+                 batch.set(docRef, {
                    ...payload,
-                   id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
                    date: new Date().toISOString()
                  });
               }
+              await batch.commit();
           }
-          
-          newWorkouts.sort((a, b) => new Date(b.date) - new Date(a.date));
-          
-          setWorkoutsDb(newWorkouts);
-          localStorage.setItem('recomp_history', JSON.stringify(newWorkouts));
-          
           if (!editSession) clearSavedSession(); 
-          
         } catch (err) {
           console.error("Error saving workout:", err);
         }
@@ -439,7 +456,7 @@
       if (loading) return (
         <div className="min-h-screen flex flex-col items-center justify-center text-neutral-300">
           <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-          <p className="font-header text-xl tracking-widest text-neutral-500">SYSTEM BOOTING...</p>
+          <p className="font-header text-xl tracking-widest text-neutral-500">SYNCING WITH CLOUD...</p>
         </div>
       );
 
@@ -1706,35 +1723,31 @@
              {number}
           </div>
 
-          <div className="flex justify-between items-start mb-3 relative z-10">
-            <div className="flex items-start gap-3 w-full pr-2">
-              
-              <button
-                onClick={() => onOpenImage({ name: exercise.name, notes: exercise.notes, src: getExerciseImage(exercise.name), theme: theme })}
-                className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-white/20 btn-press group relative shadow-lg mt-0.5"
-              >
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors z-10 flex items-center justify-center">
-                    <IconPlay size={16} className="text-white opacity-60 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <img src={getExerciseImage(exercise.name)} alt={exercise.name} className="w-full h-full object-cover filter brightness-75 group-hover:scale-110 transition-transform duration-500" />
-              </button>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                   <h3 className="text-lg sm:text-xl font-bold text-white/90 tracking-tight leading-tight truncate">
-                     {exercise.name}
-                   </h3>
-                   <div className="bg-black/50 text-white/70 text-[9px] font-mono px-2 py-0.5 rounded border border-white/10 uppercase tracking-widest whitespace-nowrap shrink-0">
-                     {state.targetSets}s • {exercise.targetReps}
-                   </div>
-                </div>
-                <p className="text-white/50 text-[10px] flex items-start leading-snug line-clamp-1 sm:line-clamp-2 mt-1">
-                  <IconInfo size={12} className="mr-1 mt-[1px] flex-shrink-0" />
-                  {exercise.notes}
-                </p>
-              </div>
-
-            </div>
+          <div className="flex gap-3 items-start mb-3 relative z-10 w-full pr-2">
+             <button
+               onClick={() => onOpenImage({ name: exercise.name, notes: exercise.notes, src: getExerciseImage(exercise.name), theme: theme })}
+               className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-white/20 btn-press group relative shadow-lg mt-0.5"
+             >
+               <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors z-10 flex items-center justify-center">
+                   <IconPlay size={16} className="text-white opacity-60 group-hover:opacity-100 transition-opacity" />
+               </div>
+               <img src={getExerciseImage(exercise.name)} alt={exercise.name} className="w-full h-full object-cover filter brightness-75 group-hover:scale-110 transition-transform duration-500" />
+             </button>
+             
+             <div className="flex-1 min-w-0">
+               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                  <h3 className="text-lg sm:text-xl font-bold text-white/90 tracking-tight leading-tight truncate">
+                    {exercise.name}
+                  </h3>
+                  <div className="bg-black/50 text-white/70 text-[9px] font-mono px-2 py-0.5 rounded border border-white/10 uppercase tracking-widest whitespace-nowrap shrink-0">
+                    {state.targetSets}s • {exercise.targetReps}
+                  </div>
+               </div>
+               <p className="text-white/50 text-[10px] flex items-start leading-snug line-clamp-1 sm:line-clamp-2 mt-1">
+                 <IconInfo size={12} className="mr-1 mt-[1px] flex-shrink-0" />
+                 {exercise.notes}
+               </p>
+             </div>
           </div>
 
           <div className="flex flex-col md:flex-row gap-2 mb-3 relative z-10">
@@ -1826,20 +1839,6 @@
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
-  </script>
-  <script>
-    // Service Worker Registration for PWA Functionality
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then((registration) => {
-            console.log('RC Fit ServiceWorker registered with scope:', registration.scope);
-          })
-          .catch((error) => {
-            console.warn('ServiceWorker registration failed:', error);
-          });
-      });
-    }
   </script>
 </body>
 </html>
