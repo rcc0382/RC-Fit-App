@@ -324,22 +324,41 @@
     }
 
     // --- PROTOCOL BUILDER COMPONENT ---
-    function RoutineBuilder({ routines, onSave, onCancel }) {
-      const [editableRoutines, setEditableRoutines] = useState(JSON.parse(JSON.stringify(routines)));
+    function RoutineBuilder({ getActiveRoutines, onSave, onCancel }) {
+      const [editBase, setEditBase] = useState('Robby');
+      const [editableRoutines, setEditableRoutines] = useState(() => JSON.parse(JSON.stringify(getActiveRoutines('Robby'))));
       const [activeTab, setActiveTab] = useState(0);
+      const [deployTarget, setDeployTarget] = useState('Both');
+
+      const handleBaseChange = (base) => {
+          setEditBase(base);
+          setEditableRoutines(JSON.parse(JSON.stringify(getActiveRoutines(base))));
+          setActiveTab(0);
+      };
 
       const activeRoutine = editableRoutines[activeTab];
 
       return (
         <div className="max-w-[1000px] mx-auto p-4 md:p-6 pb-24">
-           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
+           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-6 border-b border-white/10">
               <div>
-                 <h2 className="text-3xl font-header tracking-widest text-white leading-none mb-1">PROTOCOL BUILDER</h2>
-                 <p className="text-xs font-mono text-white/50 uppercase tracking-widest">Global Master Template Override</p>
+                 <h2 className="text-3xl font-header tracking-widest text-white leading-none mb-2">PROTOCOL BUILDER</h2>
+                 <div className="flex items-center gap-2">
+                     <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">Editing Base:</span>
+                     <select value={editBase} onChange={e => handleBaseChange(e.target.value)} className="bg-black/50 border border-white/10 rounded px-2 py-1 text-[10px] font-bold tracking-widest uppercase text-white/80 outline-none focus:border-indigo-500">
+                         <option value="Robby">Robby's Protocol</option>
+                         <option value="Candice">Candice's Protocol</option>
+                     </select>
+                 </div>
               </div>
-              <div className="flex gap-3">
-                 <button onClick={onCancel} className="glass-card hover:bg-white/10 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all btn-press">Abort</button>
-                 <button onClick={() => onSave(editableRoutines)} className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all btn-press">Deploy Update</button>
+              <div className="flex flex-wrap gap-2 items-center">
+                 <select value={deployTarget} onChange={e => setDeployTarget(e.target.value)} className="bg-black/60 border border-white/20 rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-white outline-none focus:border-indigo-500">
+                     <option value="Both">Deploy to Both</option>
+                     <option value="Robby">Deploy to Robby Only</option>
+                     <option value="Candice">Deploy to Candice Only</option>
+                 </select>
+                 <button onClick={() => onSave(editableRoutines, deployTarget)} className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all btn-press">Deploy</button>
+                 <button onClick={onCancel} className="glass-card hover:bg-white/10 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all btn-press">Abort</button>
               </div>
            </div>
 
@@ -436,7 +455,7 @@
     // --- MAIN APP COMPONENT ---
     function App() {
       const [workoutsDb, setWorkoutsDb] = useState([]);
-      const [customRoutines, setCustomRoutines] = useState(null);
+      const [customRoutines, setCustomRoutines] = useState({ Robby: null, Candice: null });
       const [loading, setLoading] = useState(true);
       const [activeUsers, setActiveUsers] = useState([]);
       const [selectedRoutines, setSelectedRoutines] = useState({});
@@ -446,7 +465,11 @@
       const [showPlateCalc, setShowPlateCalc] = useState(false);
       const [showHeatmap, setShowHeatmap] = useState(null);
 
-      const activeRoutines = customRoutines || DEFAULT_ROUTINES;
+      // Helper to dynamically pull the right routine array
+      const getActiveRoutines = (user) => {
+         if (customRoutines && customRoutines[user]) return customRoutines[user];
+         return DEFAULT_ROUTINES;
+      };
 
       // FORCE HARD REFRESH FUNCTION
       const forceRefresh = () => {
@@ -481,7 +504,7 @@
 
            const baseDataPath = `artifacts/${appId}/public/data`;
 
-           // Listen to Historical Workouts (No complex queries)
+           // Listen to Historical Workouts
            unsubscribeWorkouts = db.collection(`${baseDataPath}/workouts`)
              .onSnapshot(snapshot => {
                 const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -504,10 +527,16 @@
            // Listen to Custom Builder Protocols
            unsubscribeRoutines = db.collection(`${baseDataPath}/app_state`).doc('custom_routines')
              .onSnapshot(doc => {
-                if (doc.exists && doc.data().routines) {
-                    setCustomRoutines(doc.data().routines);
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Handle legacy data structure safely
+                    if (data.routines) {
+                        setCustomRoutines({ Robby: data.routines, Candice: data.routines });
+                    } else {
+                        setCustomRoutines({ Robby: data.Robby || null, Candice: data.Candice || null });
+                    }
                 } else {
-                    setCustomRoutines(null);
+                    setCustomRoutines({ Robby: null, Candice: null });
                 }
              });
         };
@@ -522,14 +551,15 @@
       }, []);
 
       const getNextWorkoutId = (username) => {
+        const userRoutines = getActiveRoutines(username);
         const userHistory = workoutsDb.filter(w => w.user === username);
-        if (userHistory.length === 0) return activeRoutines[0].id;
+        if (userHistory.length === 0) return userRoutines[0].id;
         
         const lastWorkoutId = userHistory[0].routineId;
-        const currentIndex = activeRoutines.findIndex(r => r.id === lastWorkoutId);
+        const currentIndex = userRoutines.findIndex(r => r.id === lastWorkoutId);
         
-        if (currentIndex === -1 || currentIndex === activeRoutines.length - 1) return activeRoutines[0].id;
-        return activeRoutines[currentIndex + 1].id;
+        if (currentIndex === -1 || currentIndex === userRoutines.length - 1) return userRoutines[0].id;
+        return userRoutines[currentIndex + 1].id;
       };
 
       const startWorkout = (users, routines) => {
@@ -598,9 +628,29 @@
          setEditSession(null);
       };
 
-      const handleSaveRoutines = async (newRoutines) => {
+      const handleSaveRoutines = async (newRoutines, targetUser) => {
         try {
-            await db.collection(`artifacts/${appId}/public/data/app_state`).doc('custom_routines').set({ routines: newRoutines });
+            const docRef = db.collection(`artifacts/${appId}/public/data/app_state`).doc('custom_routines');
+            const docSnap = await docRef.get();
+            let currentData = docSnap.exists ? docSnap.data() : { Robby: null, Candice: null };
+            
+            // Legacy safety mapping
+            if (currentData.routines) {
+                currentData.Robby = currentData.routines;
+                currentData.Candice = currentData.routines;
+                delete currentData.routines;
+            }
+
+            if (targetUser === 'Both') {
+                currentData.Robby = newRoutines;
+                currentData.Candice = newRoutines;
+            } else if (targetUser === 'Robby') {
+                currentData.Robby = newRoutines;
+            } else if (targetUser === 'Candice') {
+                currentData.Candice = newRoutines;
+            }
+
+            await docRef.set(currentData);
             setView('dashboard');
         } catch (err) {
             console.error(err);
@@ -628,7 +678,7 @@
                onTogglePlateCalc={() => setShowPlateCalc(true)}
                onToggleHeatmap={(user) => setShowHeatmap(user)}
                forceRefresh={forceRefresh}
-               activeRoutines={activeRoutines}
+               getActiveRoutines={getActiveRoutines}
                onEditProtocol={() => setView('builder')}
             />
           )}
@@ -643,12 +693,12 @@
                initialSessionData={savedSession && savedSession.users.join(',') === activeUsers.join(',') ? savedSession.sessionData : null}
                editSession={editSession}
                onTogglePlateCalc={() => setShowPlateCalc(true)}
-               activeRoutines={activeRoutines}
+               getActiveRoutines={getActiveRoutines}
             />
           )}
           {view === 'builder' && (
             <RoutineBuilder 
-               routines={activeRoutines}
+               getActiveRoutines={getActiveRoutines}
                onSave={handleSaveRoutines}
                onCancel={() => setView('dashboard')}
             />
@@ -860,8 +910,8 @@
           
           for (let p of available) {
              while (remaining >= p) {
-                plates.push(p);
-                remaining = Math.round((remaining - p) * 100) / 100;
+                 plates.push(p);
+                 remaining = Math.round((remaining - p) * 100) / 100;
              }
           }
           return plates;
@@ -1157,8 +1207,9 @@
     }
 
     // --- WORKBOOK SPREADSHEET MODAL ---
-    function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, activeRoutines }) {
+    function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, getActiveRoutines }) {
        const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow), [workoutsDb, userToShow]);
+       const activeRoutines = getActiveRoutines(userToShow);
        const routineOrder = activeRoutines.map(r => r.id);
        
        const routines = useMemo(() => {
@@ -1280,7 +1331,10 @@
        );
     }
 
-    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, onEditSession, onTogglePlateCalc, onToggleHeatmap, forceRefresh, activeRoutines, onEditProtocol }) {
+    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, onEditSession, onTogglePlateCalc, onToggleHeatmap, forceRefresh, getActiveRoutines, onEditProtocol }) {
+      const robbyRoutines = getActiveRoutines('Robby');
+      const candiceRoutines = getActiveRoutines('Candice');
+
       const [robbyScheduled, setRobbyScheduled] = useState(getNextWorkoutId('Robby'));
       const [candiceScheduled, setCandiceScheduled] = useState(getNextWorkoutId('Candice'));
       const [robbyRoutine, setRobbyRoutine] = useState(robbyScheduled);
@@ -1292,12 +1346,13 @@
          const rNext = getNextWorkoutId('Robby');
          setRobbyScheduled(rNext);
          setRobbyRoutine(rNext);
-      }, [workoutsDb, activeRoutines]);
+      }, [workoutsDb, robbyRoutines]);
+      
       useEffect(() => { 
          const cNext = getNextWorkoutId('Candice');
          setCandiceScheduled(cNext);
          setCandiceRoutine(cNext);
-      }, [workoutsDb, activeRoutines]);
+      }, [workoutsDb, candiceRoutines]);
 
       return (
         <div className="max-w-[1400px] mx-auto">
@@ -1381,7 +1436,7 @@
                  {/* Visual Timelines & Macros */}
                  <div className="flex flex-col mb-6">
                     <ActivityRings user="Robby" workoutsDb={workoutsDb} primary="var(--robby-primary)" targetCals={2500} />
-                    <PPLTimeline selected={robbyRoutine} primary="var(--robby-primary)" routineOrder={activeRoutines.map(r=>r.id)} />
+                    <PPLTimeline selected={robbyRoutine} primary="var(--robby-primary)" routineOrder={robbyRoutines.map(r=>r.id)} />
                  </div>
 
                  <div className="mb-6 relative z-10">
@@ -1397,7 +1452,7 @@
                        onChange={e => setRobbyRoutine(e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xl font-header tracking-widest text-[var(--robby-primary)] outline-none focus:border-[var(--robby-primary)] appearance-none shadow-inner"
                     >
-                       {activeRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
+                       {robbyRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
                     </select>
                  </div>
                  <button 
@@ -1435,7 +1490,7 @@
                  {/* Visual Timelines & Macros */}
                  <div className="flex flex-col mb-6">
                     <ActivityRings user="Candice" workoutsDb={workoutsDb} primary="var(--candice-primary)" targetCals={1500} />
-                    <PPLTimeline selected={candiceRoutine} primary="var(--candice-primary)" routineOrder={activeRoutines.map(r=>r.id)} />
+                    <PPLTimeline selected={candiceRoutine} primary="var(--candice-primary)" routineOrder={candiceRoutines.map(r=>r.id)} />
                  </div>
 
                  <div className="mb-6 relative z-10">
@@ -1451,7 +1506,7 @@
                        onChange={e => setCandiceRoutine(e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xl font-header tracking-widest text-[var(--candice-primary)] outline-none focus:border-[var(--candice-primary)] appearance-none shadow-inner"
                     >
-                       {activeRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
+                       {candiceRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
                     </select>
                  </div>
                  <button 
@@ -1527,7 +1582,7 @@
                       setShowSpreadsheet(null);
                       onEditSession(session);
                   }}
-                  activeRoutines={activeRoutines}
+                  getActiveRoutines={getActiveRoutines}
               />
           )}
           
@@ -1606,13 +1661,14 @@
       );
     }
 
-    function ActiveWorkout({ users, selectedRoutines, workoutsDb, onFinish, onSaveProgress, onCancel, initialSessionData, editSession, onTogglePlateCalc, activeRoutines }) {
+    function ActiveWorkout({ users, selectedRoutines, workoutsDb, onFinish, onSaveProgress, onCancel, initialSessionData, editSession, onTogglePlateCalc, getActiveRoutines }) {
       const [sessionData, setSessionData] = useState(() => {
         if (initialSessionData && !editSession) return initialSessionData;
 
         const initialState = {};
         users.forEach(username => {
           const routineId = selectedRoutines[username];
+          const activeRoutines = getActiveRoutines(username);
           const routine = activeRoutines.find(r => r.id === routineId);
           const exercisesState = {};
           
@@ -1756,6 +1812,7 @@
           <div className={`grid grid-cols-1 ${users.length === 2 ? 'xl:grid-cols-2 gap-6' : 'max-w-2xl mx-auto'} items-start`}>
             {users.map(username => {
               const routineId = sessionData[username].routineId;
+              const activeRoutines = getActiveRoutines(username);
               const routine = activeRoutines.find(r => r.id === routineId);
               const theme = username === 'Robby' 
                 ? { primary: 'var(--robby-primary)', glowClass: 'glow-robby', textClass: 'text-[var(--robby-primary)]', focusRing: 'focus:border-[var(--robby-primary)] focus:ring-[var(--robby-primary)]' }
