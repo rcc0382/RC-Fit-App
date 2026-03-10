@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Recomp Protocol Command Center</title>
   
-  <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,12 +12,10 @@
   <meta name="apple-mobile-web-app-title" content="RC Fit">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@400;700;900&family=Teko:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
@@ -84,14 +81,11 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
   </style>
 
-  <!-- React & ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   
-  <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Firebase Compat Libraries -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -119,7 +113,6 @@
     }
     const db = firebase.firestore();
     const auth = firebase.auth();
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'rc-fit';
 
     // --- DAILY IMAGES ENGINE ---
     const ROBBY_IMAGES = [
@@ -157,7 +150,7 @@
     const IconEdit = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
     const IconCalculator = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="2" x2="8" y2="4"></line><line x1="16" y1="2" x2="16" y2="4"></line><line x1="4" y1="10" x2="20" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>;
     const IconActivity = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
-    const IconQuote = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1.5.5 1.5 1.5L5 15c0 3-2 6-2 6z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.5c0 1-.5 1.5-1.5 1.5-.5 0-1 .5-1 1.5L17 15c0 3-2 6-2 6z"></path></svg>;
+    const IconQuote = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1.5.5 1.5 1.5L5 15c0 3-2 6-2 6z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.5c0 1-.5 1.5-1.5-1.5-.5 0-1 .5-1 1.5L17 15c0 3-2 6-2 6z"></path></svg>;
     const IconSettings = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
     const IconTrash2 = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>;
 
@@ -363,103 +356,6 @@
       )
     }
 
-    // --- RECOVERY HEATMAP MODAL ---
-    function RecoveryHeatmapModal({ user, workoutsDb, onClose }) {
-       const fatigueMap = useMemo(() => {
-          const map = {};
-          const now = new Date().getTime();
-          const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(b.date) - new Date(a.date));
-          const allMuscles = ['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Forearms', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves', 'Rectus Abdominis', 'Transverse Abdominis', 'Core_IAP'];
-          allMuscles.forEach(m => map[m] = { fatigue: 0, lastHit: null, rpe: 0 });
-
-          userWorkouts.forEach(workout => {
-             const workoutDate = new Date(workout.date).getTime();
-             const hoursElapsed = (now - workoutDate) / (1000 * 60 * 60);
-             if (hoursElapsed > 168) return;
-
-             Object.entries(workout.exercises).forEach(([exName, exData]) => {
-                const rpe = parseFloat(exData.rpe) || 7; 
-                const muscles = EXERCISE_MUSCLE_MAP[exName] || [];
-                muscles.forEach(muscle => {
-                   if (map[muscle] && map[muscle].lastHit === null) {
-                      map[muscle].lastHit = workoutDate; map[muscle].rpe = rpe;
-                      let baseFatigue = rpe * 10; 
-                      map[muscle].fatigue = Math.max(0, baseFatigue * (1 - (hoursElapsed / 72)));
-                   }
-                });
-             });
-          });
-          return map;
-       }, [workoutsDb, user]);
-
-       const getColor = (fatigue) => {
-          if (fatigue > 75) return '#ef4444'; 
-          if (fatigue > 50) return '#f97316'; 
-          if (fatigue > 25) return '#eab308'; 
-          return '#22c55e'; 
-       };
-
-       const AnatomicalModel = () => (
-          <div className="flex justify-center items-center gap-4 sm:gap-12 scale-90 sm:scale-100">
-             <div className="relative">
-                <p className="text-center text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Anterior</p>
-                <svg width="140" height="300" viewBox="0 0 100 220" className="drop-shadow-2xl">
-                   <circle cx="50" cy="20" r="12" fill="#171717" stroke="#333" strokeWidth="2" />
-                   <path d="M 25 40 Q 15 45 15 55 L 20 65 L 30 50 Z" fill={getColor(Math.max(fatigueMap['Front Delts'].fatigue, fatigueMap['Side Delts'].fatigue))} stroke="#111" strokeWidth="1"/>
-                   <path d="M 75 40 Q 85 45 85 55 L 80 65 L 70 50 Z" fill={getColor(Math.max(fatigueMap['Front Delts'].fatigue, fatigueMap['Side Delts'].fatigue))} stroke="#111" strokeWidth="1"/>
-                   <path d="M 30 45 L 70 45 L 75 65 L 50 75 L 25 65 Z" fill={getColor(fatigueMap['Chest'].fatigue)} stroke="#111" strokeWidth="2"/>
-                   <g>
-                      <path d="M 35 75 L 65 75 L 60 120 L 40 120 Z" fill={getColor(fatigueMap['Rectus Abdominis'].fatigue)} stroke="#111" strokeWidth="2"/>
-                      <line x1="50" y1="75" x2="50" y2="120" stroke="#111" strokeWidth="1.5" />
-                      <line x1="37" y1="90" x2="63" y2="90" stroke="#111" strokeWidth="1.5" />
-                      <line x1="38" y1="105" x2="62" y2="105" stroke="#111" strokeWidth="1.5" />
-                   </g>
-                   <path d="M 15 60 L 25 65 L 20 90 L 10 85 Z" fill={getColor(fatigueMap['Biceps'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 85 60 L 75 65 L 80 90 L 90 85 Z" fill={getColor(fatigueMap['Biceps'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 10 90 L 20 95 L 15 120 L 5 115 Z" fill={getColor(fatigueMap['Forearms'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 90 90 L 80 95 L 85 120 L 95 115 Z" fill={getColor(fatigueMap['Forearms'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 35 125 L 48 125 L 45 170 L 30 165 Z" fill={getColor(fatigueMap['Quads'].fatigue)} stroke="#111" strokeWidth="2"/>
-                   <path d="M 65 125 L 52 125 L 55 170 L 70 165 Z" fill={getColor(fatigueMap['Quads'].fatigue)} stroke="#111" strokeWidth="2"/>
-                </svg>
-             </div>
-             <div className="relative">
-                <p className="text-center text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Posterior</p>
-                <svg width="140" height="300" viewBox="0 0 100 220" className="drop-shadow-2xl">
-                   <circle cx="50" cy="20" r="12" fill="#171717" stroke="#333" strokeWidth="2" />
-                   <path d="M 30 40 L 70 40 L 50 65 Z" fill={getColor(fatigueMap['Traps'].fatigue)} stroke="#111" strokeWidth="2"/>
-                   <path d="M 25 50 L 50 65 L 50 100 L 35 110 Z" fill={getColor(fatigueMap['Lats'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 75 50 L 50 65 L 50 100 L 65 110 Z" fill={getColor(fatigueMap['Lats'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 35 110 L 65 110 L 60 120 L 40 120 Z" fill={getColor(fatigueMap['Lower Back'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 15 60 L 25 65 L 20 90 L 10 85 Z" fill={getColor(fatigueMap['Triceps'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 85 60 L 75 65 L 80 90 L 90 85 Z" fill={getColor(fatigueMap['Triceps'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 35 120 L 50 120 L 50 145 L 30 140 Z" fill={getColor(fatigueMap['Glutes'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 65 120 L 50 120 L 50 145 L 70 140 Z" fill={getColor(fatigueMap['Glutes'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 30 145 L 50 145 L 45 170 L 30 165 Z" fill={getColor(fatigueMap['Hamstrings'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 70 145 L 50 145 L 55 170 L 70 165 Z" fill={getColor(fatigueMap['Hamstrings'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 30 175 L 45 175 L 40 210 L 35 210 Z" fill={getColor(fatigueMap['Calves'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                   <path d="M 70 175 L 55 175 L 60 210 L 65 210 Z" fill={getColor(fatigueMap['Calves'].fatigue)} stroke="#111" strokeWidth="1.5"/>
-                </svg>
-             </div>
-          </div>
-       );
-
-       return (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[100] p-4" onClick={onClose}>
-             <div className="glass-card rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
-                   <h2 className="text-2xl font-header tracking-wide text-white flex items-center"><IconActivity size={24} className="mr-2"/> {user}'s Heatmap</h2>
-                   <button onClick={onClose} className="text-neutral-400 hover:text-white bg-black/50 p-2 rounded-full btn-press"><IconX size={20} /></button>
-                </div>
-                <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 bg-black/20">
-                   <div className="flex-1 rounded-2xl border border-white/5 bg-black/40 p-6 flex flex-col items-center justify-center">
-                      <AnatomicalModel />
-                   </div>
-                </div>
-             </div>
-          </div>
-       );
-    }
-
     // --- MAIN APP COMPONENT ---
     function App() {
       const [workoutsDb, setWorkoutsDb] = useState([]);
@@ -471,6 +367,8 @@
       const [savedSession, setSavedSession] = useState(null);
       const [editSession, setEditSession] = useState(null);
       const [showSpreadsheet, setShowSpreadsheet] = useState(null); 
+      const [showHeatmap, setShowHeatmap] = useState(null);
+      const [showPlateCalc, setShowPlateCalc] = useState(false);
 
       const forceRefresh = () => {
           localStorage.clear();
@@ -487,20 +385,20 @@
         const initSync = async () => {
            try { await auth.signInAnonymously(); } catch(err) {}
 
-           const basePath = `artifacts/${appId}/public/data`;
+           const basePath = `workouts`; // Clean path for main DB
            
-           unsubscribeWorkouts = db.collection(`${basePath}/workouts`).onSnapshot(snapshot => {
+           unsubscribeWorkouts = db.collection(basePath).onSnapshot(snapshot => {
                 const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 data.sort((a, b) => new Date(b.date) - new Date(a.date));
                 setWorkoutsDb(data);
                 setLoading(false);
            }, err => { setLoading(false); });
 
-           unsubscribeSession = db.collection(`${basePath}/app_state`).doc('active_session').onSnapshot(doc => {
+           unsubscribeSession = db.collection(`app_state`).doc('active_session').onSnapshot(doc => {
                 if (doc.exists) setSavedSession(doc.data()); else setSavedSession(null);
            });
 
-           unsubscribeRoutines = db.collection(`${basePath}/app_state`).doc('app_settings').onSnapshot(doc => {
+           unsubscribeRoutines = db.collection(`app_state`).doc('app_settings').onSnapshot(doc => {
                 if (doc.exists) setAppSettings(prev => ({ ...prev, ...doc.data() }));
            });
         };
@@ -524,19 +422,19 @@
       const resumeWorkout = () => { if (savedSession) { setActiveUsers(savedSession.users); setView('workout'); } };
 
       const handleSaveProgress = (users, sessionData) => {
-        db.collection(`artifacts/${appId}/public/data/app_state`).doc('active_session').set({ users, sessionData });
+        db.collection(`app_state`).doc('active_session').set({ users, sessionData });
         setView('dashboard'); setActiveUsers([]);
       };
-      const clearSavedSession = () => { db.collection(`artifacts/${appId}/public/data/app_state`).doc('active_session').delete().catch(()=>{}); };
+      const clearSavedSession = () => { db.collection(`app_state`).doc('active_session').delete().catch(()=>{}); };
 
       const handleFinishWorkout = async (payloads) => {
         try {
           if (editSession) {
-              await db.collection(`artifacts/${appId}/public/data/workouts`).doc(editSession.id).update({...payloads[0]});
+              await db.collection(`workouts`).doc(editSession.id).update({...payloads[0]});
           } else {
               const batch = db.batch();
               for (const p of payloads) {
-                 batch.set(db.collection(`artifacts/${appId}/public/data/workouts`).doc(), {...p, date: new Date().toISOString()});
+                 batch.set(db.collection(`workouts`).doc(), {...p, date: new Date().toISOString()});
               }
               await batch.commit();
           }
@@ -546,7 +444,7 @@
       };
 
       const handleSaveSettings = async (newSettings) => {
-        await db.collection(`artifacts/${appId}/public/data/app_state`).doc('app_settings').set(newSettings, { merge: true });
+        await db.collection(`app_state`).doc('app_settings').set(newSettings, { merge: true });
         setView('dashboard');
       };
 
@@ -560,7 +458,7 @@
       return (
         <div className="min-h-screen bg-neutral-950 text-neutral-100 p-2 md:p-6 pb-20 font-sans relative">
           {view === 'dashboard' && (
-            <Dashboard workoutsDb={workoutsDb} onStart={startWorkout} getNextWorkoutId={getNextWorkoutId} savedSession={savedSession} onResume={resumeWorkout} forceRefresh={forceRefresh} appSettings={appSettings} onEditProtocol={() => setView('builder')} setShowSpreadsheet={setShowSpreadsheet} />
+            <Dashboard workoutsDb={workoutsDb} onStart={startWorkout} getNextWorkoutId={getNextWorkoutId} savedSession={savedSession} onResume={resumeWorkout} forceRefresh={forceRefresh} appSettings={appSettings} onEditProtocol={() => setView('builder')} setShowSpreadsheet={setShowSpreadsheet} onTogglePlateCalc={() => setShowPlateCalc(true)} onToggleHeatmap={setShowHeatmap} />
           )}
           {view === 'workout' && (
             <ActiveWorkout users={activeUsers} selectedRoutines={selectedRoutines} workoutsDb={workoutsDb} onFinish={handleFinishWorkout} onSaveProgress={handleSaveProgress} onCancel={() => { if(!editSession) clearSavedSession(); setView('dashboard'); setActiveUsers([]); setEditSession(null); }} initialSessionData={savedSession && savedSession.users.join(',') === activeUsers.join(',') ? savedSession.sessionData : null} editSession={editSession} appSettings={appSettings} />
@@ -571,16 +469,19 @@
           {showSpreadsheet && (
             <SpreadsheetModal workoutsDb={workoutsDb} userToShow={showSpreadsheet} onClose={() => setShowSpreadsheet(null)} onEditSession={(s) => {setShowSpreadsheet(null); startEditWorkout(s);}} appSettings={appSettings} />
           )}
+          {showPlateCalc && <PlateLoaderModal onClose={() => setShowPlateCalc(false)} />}
+          {showHeatmap && <RecoveryHeatmapModal user={showHeatmap} workoutsDb={workoutsDb} onClose={() => setShowHeatmap(null)} />}
         </div>
       );
     }
 
     // --- DASHBOARD COMPONENT ---
-    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, forceRefresh, appSettings, onEditProtocol, setShowSpreadsheet }) {
+    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, forceRefresh, appSettings, onEditProtocol, setShowSpreadsheet, onTogglePlateCalc, onToggleHeatmap }) {
       const [robbyScheduled, setRobbyScheduled] = useState(getNextWorkoutId('Robby'));
       const [candiceScheduled, setCandiceScheduled] = useState(getNextWorkoutId('Candice'));
       const [robbyRoutine, setRobbyRoutine] = useState(robbyScheduled);
       const [candiceRoutine, setCandiceRoutine] = useState(candiceScheduled);
+      const [selectedHistory, setSelectedHistory] = useState(null);
 
       useEffect(() => { setRobbyScheduled(getNextWorkoutId('Robby')); setRobbyRoutine(getNextWorkoutId('Robby')); }, [workoutsDb, appSettings]);
       useEffect(() => { setCandiceScheduled(getNextWorkoutId('Candice')); setCandiceRoutine(getNextWorkoutId('Candice')); }, [workoutsDb, appSettings]);
@@ -594,11 +495,12 @@
                    <button onClick={forceRefresh} className="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[8px] font-bold tracking-widest btn-press">RESET CACHE</button>
                </div>
                <p className="text-emerald-400 text-[10px] font-mono tracking-widest flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> CLOUD SYNC V4.0
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> CLOUD SYNC V3.0
                </p>
             </div>
             <div className="flex flex-wrap gap-2">
                <button onClick={onEditProtocol} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconSettings size={12} className="mr-1 text-white/80" /> Protocol</button>
+               <button onClick={onTogglePlateCalc} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconCalculator size={12} className="mr-1 text-white/80" /> Plates</button>
                <button onClick={() => setShowSpreadsheet('Robby')} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconTable size={12} className="mr-1 text-[var(--robby-primary)]" /> Robby</button>
                <button onClick={() => setShowSpreadsheet('Candice')} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconTable size={12} className="mr-1 text-[var(--candice-primary)]" /> Candice</button>
                <button onClick={() => onStart(['Robby', 'Candice'], { Robby: robbyRoutine, Candice: candiceRoutine })} className="bg-white text-black px-4 py-1.5 rounded text-xs font-bold transition-all flex items-center shadow-[0_0_10px_rgba(255,255,255,0.3)] btn-press"><IconUsers size={14} className="mr-1.5" /> Dual Sync</button>
@@ -615,7 +517,18 @@
                   <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent"></div>
                   <div className="absolute bottom-2 left-4"><h2 className="text-3xl font-header text-white tracking-widest leading-none drop-shadow-md">Robby</h2></div>
                </div>
+               
+               <div className="px-4 pt-2">
+                  <button onClick={() => onToggleHeatmap('Robby')} className="w-full glass-card hover:bg-white/5 rounded py-2 text-[10px] font-bold text-[var(--robby-primary)] transition-colors flex items-center justify-center btn-press uppercase tracking-widest">
+                     <IconActivity size={12} className="mr-1.5" /> View Recovery Map
+                  </button>
+               </div>
+
                <div className="p-4 flex-1 flex flex-col">
+                  <div className="flex flex-col mb-4">
+                     <ActivityRings user="Robby" workoutsDb={workoutsDb} primary="var(--robby-primary)" targetCals={2500} />
+                     <PPLTimeline selected={robbyRoutine} primary="var(--robby-primary)" routineOrder={(appSettings.Robby || DEFAULT_ROUTINES).map(r=>r.id)} />
+                  </div>
                   <div className="flex justify-between items-end mb-2">
                      <label className="text-[9px] text-white/50 font-bold tracking-widest uppercase">Sequence</label>
                   </div>
@@ -633,7 +546,18 @@
                   <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent"></div>
                   <div className="absolute bottom-2 left-4"><h2 className="text-3xl font-header text-white tracking-widest leading-none drop-shadow-md">Candice</h2></div>
                </div>
+
+               <div className="px-4 pt-2">
+                  <button onClick={() => onToggleHeatmap('Candice')} className="w-full glass-card hover:bg-white/5 rounded py-2 text-[10px] font-bold text-[var(--candice-primary)] transition-colors flex items-center justify-center btn-press uppercase tracking-widest">
+                     <IconActivity size={12} className="mr-1.5" /> View Recovery Map
+                  </button>
+               </div>
+
                <div className="p-4 flex-1 flex flex-col">
+                  <div className="flex flex-col mb-4">
+                     <ActivityRings user="Candice" workoutsDb={workoutsDb} primary="var(--candice-primary)" targetCals={1500} />
+                     <PPLTimeline selected={candiceRoutine} primary="var(--candice-primary)" routineOrder={(appSettings.Candice || DEFAULT_ROUTINES).map(r=>r.id)} />
+                  </div>
                   <div className="flex justify-between items-end mb-2">
                      <label className="text-[9px] text-white/50 font-bold tracking-widest uppercase">Sequence</label>
                   </div>
@@ -644,6 +568,82 @@
                </div>
             </div>
           </div>
+
+          {/* Quick Log Block */}
+          <div className="mt-4 pt-6 border-t border-white/10">
+            <h3 className="font-header text-xl tracking-widest text-white/80 mb-3 flex items-center"><IconHistory size={16} className="mr-2" /> RECENT LOGS</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+              {workoutsDb.slice(0, 4).map((w, i) => {
+                 const themeText = w.user === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
+                 const glowClass = w.user === 'Robby' ? 'hover:shadow-[0_0_10px_var(--robby-glow)] hover:border-[var(--robby-primary)]' : 'hover:shadow-[0_0_10px_var(--candice-glow)] hover:border-[var(--candice-primary)]';
+
+                 return (
+                   <button key={w.id} onClick={() => setSelectedHistory(w)} className={`glass-card rounded-xl p-3 flex flex-col justify-start text-left transition-all h-[200px] group btn-press ${glowClass}`}>
+                     <div className="flex justify-between items-start mb-2 w-full">
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-white/5 ${themeText}`}>{w.user}</span>
+                        <span className="text-[8px] font-mono text-white/40">{new Date(w.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                     </div>
+                     <p className="font-header text-lg tracking-widest text-white mb-2 leading-none">{w.routineId}</p>
+                     
+                     <div className="flex-1 overflow-y-auto w-full space-y-1.5 pr-1 text-[10px]">
+                        {Object.entries(w.exercises).map(([exName, exData]) => {
+                           const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                           return (
+                              <div key={exName} className="flex justify-between items-start gap-2 border-b border-white/5 pb-1">
+                                 <span className="text-white/60 truncate max-w-[65%]">{exName}</span>
+                                 <span className="text-white/40 font-mono whitespace-nowrap">{sets.length} sets</span>
+                              </div>
+                           );
+                        })}
+                     </div>
+                   </button>
+                 )
+              })}
+            </div>
+          </div>
+
+          {selectedHistory && (
+             <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[70] p-4" onClick={() => setSelectedHistory(null)}>
+                <div className="glass-card rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                   <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40">
+                      <div>
+                         <div className="flex items-center gap-2 mb-1">
+                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 ${selectedHistory.user === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]'}`}>
+                               {selectedHistory.user}
+                            </span>
+                            <h3 className="text-xl font-header tracking-widest text-white leading-none mt-1">{selectedHistory.routineId}</h3>
+                         </div>
+                      </div>
+                      <button onClick={() => setSelectedHistory(null)} className="text-white/50 hover:text-white bg-black/50 p-1.5 rounded-full transition-colors btn-press"><IconX size={16} /></button>
+                   </div>
+                   <div className="p-4 max-h-[60vh] overflow-y-auto space-y-3">
+                      {Object.entries(selectedHistory.exercises).map(([exName, exData]) => {
+                         const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                         return (
+                            <div key={exName} className="glass-card bg-black/20 rounded-xl p-3 border border-white/5">
+                               <h4 className="font-bold text-white/90 text-xs mb-2">{exName}</h4>
+                               <div className="flex flex-wrap gap-2">
+                                  {sets.map((set, i) => (
+                                     <div key={i} className="bg-black/40 px-2 py-1 rounded text-white/60 font-mono text-[10px] border border-white/5">
+                                        {i+1}: <span className="text-white font-bold">{set.weight}</span> x <span className="text-white font-bold">{set.reps}</span>
+                                     </div>
+                                  ))}
+                               </div>
+                            </div>
+                         );
+                      })}
+                      {selectedHistory.cardioType && (
+                          <div className="glass-card bg-black/20 rounded-xl p-3 border border-white/5 mt-2">
+                              <h4 className="font-bold text-white/90 text-xs mb-1 flex items-center"><IconActivity size={12} className="mr-1"/> Cardio</h4>
+                              <div className="text-white/60 font-mono text-[10px] pl-2">
+                                  {selectedHistory.cardioType} — {selectedHistory.cardioDuration} min
+                              </div>
+                          </div>
+                      )}
+                   </div>
+                </div>
+             </div>
+          )}
         </div>
       );
     }
