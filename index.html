@@ -74,9 +74,14 @@
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-    /* Hide scrollbar for tabs */
+    /* Hide scrollbar for horizontal tabs */
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Custom scrollbar for independent lists */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
   </style>
 
   <!-- React & ReactDOM -->
@@ -91,7 +96,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="text-neutral-100 font-sans selection:bg-indigo-500/30">
+<body class="text-neutral-100 font-sans selection:bg-indigo-500/30 overflow-x-hidden">
   
   <div id="root"></div>
 
@@ -114,9 +119,27 @@
     }
     const db = firebase.firestore();
     const auth = firebase.auth();
-    
-    // Using a robust namespace for documents
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'rc-fit';
+
+    // --- DAILY IMAGES ENGINE ---
+    const ROBBY_IMAGES = [
+      'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop'
+    ];
+
+    const CANDICE_IMAGES = [
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1508215885820-4585e56135c8?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800&auto=format&fit=crop'
+    ];
+
+    const getDailyImage = (user) => {
+        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+        return user === 'Robby' ? ROBBY_IMAGES[dayOfYear % ROBBY_IMAGES.length] : CANDICE_IMAGES[dayOfYear % CANDICE_IMAGES.length];
+    };
 
     // --- ICONS ---
     const IconUser = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
@@ -136,9 +159,11 @@
     const IconActivity = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
     const IconQuote = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1.5.5 1.5 1.5L5 15c0 3-2 6-2 6z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.5c0 1-.5 1.5-1.5 1.5-.5 0-1 .5-1 1.5L17 15c0 3-2 6-2 6z"></path></svg>;
     const IconSettings = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+    const IconTrash2 = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>;
 
-    // --- CONSTANTS & MAPPINGS ---
+    // --- DATA & MAPPINGS ---
     const ROUTINE_ORDER = ['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
+    const DEFAULT_CARDIO = ['Treadmill', 'Row Machine', 'Rucking / Walk', 'Stairmaster', 'Cycling'];
 
     const EXERCISE_MUSCLE_MAP = {
       'Incline DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
@@ -179,573 +204,200 @@
       'Heel Taps': ['Transverse Abdominis', 'Rectus Abdominis']
     };
 
-    // Helper function to map an exercise to an appropriate Unsplash thumbnail image
     const getExerciseImage = (name) => {
         const lower = name.toLowerCase();
-        if (lower.includes('squat') || lower.includes('lunge') || lower.includes('leg ext') || lower.includes('calf')) 
-           return 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('deadlift') || lower.includes('rdl') || lower.includes('good morning') || lower.includes('pull through') || lower.includes('extension machine')) 
-           return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('bench') || lower.includes('press') || lower.includes('fly') || lower.includes('pushdown') || lower.includes('dips')) 
-           return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('row') || lower.includes('pull') || lower.includes('shrug')) 
-           return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('curl') || lower.includes('raise')) 
-           return 'https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=800&q=80';
-        if (lower.includes('deadbug') || lower.includes('pallof') || lower.includes('tap') || lower.includes('core')) 
-           return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80';
-        
-        return 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80'; // fallback
-    }
+        if (lower.includes('squat') || lower.includes('lunge') || lower.includes('leg ext') || lower.includes('calf')) return 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?auto=format&fit=crop&w=800&q=80';
+        if (lower.includes('deadlift') || lower.includes('rdl') || lower.includes('good morning') || lower.includes('pull through') || lower.includes('extension')) return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80';
+        if (lower.includes('bench') || lower.includes('press') || lower.includes('fly') || lower.includes('pushdown') || lower.includes('dips')) return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80';
+        if (lower.includes('row') || lower.includes('pull') || lower.includes('shrug')) return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80';
+        if (lower.includes('curl') || lower.includes('raise')) return 'https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=800&q=80';
+        if (lower.includes('deadbug') || lower.includes('pallof') || lower.includes('tap') || lower.includes('core')) return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80';
+        return 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80';
+    };
 
-    // --- DEFAULT ROUTINE DATABASE ---
     const DEFAULT_ROUTINES = [
-      {
-        id: 'Push 1',
-        exercises: [
-          { name: 'Incline DB Bench Press', targetSets: 4, targetReps: '8-12', notes: '~30 degree incline, deep stretch' },
-          { name: 'Flat DB Bench Press', targetSets: 4, targetReps: '8-12', notes: 'Full range of motion' },
-          { name: 'Dips (Bodyweight)', targetSets: 3, targetReps: 'AMRAP', notes: 'Lean forward for lower chest' },
-          { name: 'Cross-Body Cable Lateral Raise', targetSets: 4, targetReps: '12-15', notes: 'Cable at waist height, continuous tension' },
-          { name: 'Overhead Cable Tricep Ext.', targetSets: 3, targetReps: '10-15', notes: 'Use rope, deep stretch behind head' }
-        ]
-      },
-      {
-        id: 'Pull 1',
-        exercises: [
-          { name: 'Chest-Supported DB Row', targetSets: 4, targetReps: '8-12', notes: '45-degree bench, pull elbows wide' },
-          { name: 'Omni-Grip Lat Pull Down', targetSets: 3, targetReps: '8-12', notes: 'Neutral grip, stretch at top' },
-          { name: 'Dual Cable Reverse Flys', targetSets: 4, targetReps: '12-15', notes: 'Cables at chest height, cross over' },
-          { name: 'EZ Bar Preacher Curls', targetSets: 3, targetReps: '10-12', notes: 'Pad locks shoulder, strict form' },
-          { name: 'DB Hammer Curls', targetSets: 3, targetReps: '10-12', notes: 'Squeeze brachialis at the top' }
-        ]
-      },
-      {
-        id: 'Legs 1',
-        exercises: [
-          { name: 'Transformer Bar Squats', targetSets: 4, targetReps: '6-10', notes: 'Maintain upright torso, Drive through mid-foot' },
-          { name: 'Kabuki Good Mornings', targetSets: 4, targetReps: '10-12', notes: 'Soft knees, push hips back, feel hamstrings' },
-          { name: 'Walking Lunges (KBs)', targetSets: 3, targetReps: '10-12/leg', notes: 'Focus on deep stretch at the bottom' },
-          { name: 'Titan Leg Extensions', targetSets: 4, targetReps: '12-15', notes: '1-sec pause/squeeze at the top' },
-          { name: 'Standing Calf Raises', targetSets: 4, targetReps: '12-15', notes: '2-sec pause at bottom stretch' }
-        ]
-      },
-      {
-        id: 'Push 2',
-        exercises: [
-          { name: 'Seated DB Shoulder Press', targetSets: 4, targetReps: '8-12', notes: 'Back supported, strict form' },
-          { name: 'Chest-Supported DB Lateral', targetSets: 4, targetReps: '12-15', notes: 'Face forward on high incline bench' },
-          { name: 'Low-to-High Cable Crossover', targetSets: 4, targetReps: '12-15', notes: 'Constant tension for upper/inner chest' },
-          { name: 'Flat Bench DB Flys', targetSets: 3, targetReps: '10-12', notes: 'Focus purely on the bottom stretch' },
-          { name: 'Rope Tricep Pushdowns', targetSets: 4, targetReps: '12-15', notes: 'Pull rope apart at the bottom' }
-        ]
-      },
-      {
-        id: 'Pull 2',
-        exercises: [
-          { name: '1-Arm Lat Pull-Ins (Cable)', targetSets: 4, targetReps: '10-12/arm', notes: 'Sit sideways, lateral high angle pull' },
-          { name: 'T-Bar Row (Landmine)', targetSets: 4, targetReps: '8-12', notes: 'V-Handle, chest up, squeeze scaps' },
-          { name: 'Straight Arm Cable Pullover', targetSets: 3, targetReps: '12-15', notes: 'Focus on lat sweep and deep stretch' },
-          { name: 'Prime Trap Bar Shrugs', targetSets: 4, targetReps: '10-12', notes: 'Heavy load, 1-sec squeeze at the top' },
-          { name: 'Incline DB Curls', targetSets: 4, targetReps: '10-12', notes: 'Let arms hang dead straight for stretch' }
-        ]
-      },
-      {
-        id: 'Legs 2',
-        exercises: [
-          { name: 'Prime Trap Bar RDLs', targetSets: 4, targetReps: '8-12', notes: 'Hips back, slight knee bend, feel hamstrings' },
-          { name: 'Bulgarian Split Squats', targetSets: 3, targetReps: '8-12/leg', notes: 'Deep stretch, torso slightly forward' },
-          { name: 'Back Extension Machine', targetSets: 3, targetReps: '10-15', notes: 'Squeeze glutes and hamstrings at top' },
-          { name: 'Leg Extensions', targetSets: 4, targetReps: '12-15', notes: 'Pause and squeeze at the top' },
-          { name: 'Seated/Bent Knee Calf Raise', targetSets: 4, targetReps: '12-15', notes: 'Slow and controlled' }
-        ]
-      }
+      { id: 'Push 1', exercises: [{ name: 'Incline DB Bench Press', targetSets: 4, targetReps: '8-12', notes: '~30 degree incline' }, { name: 'Flat DB Bench Press', targetSets: 4, targetReps: '8-12', notes: 'Full range of motion' }, { name: 'Dips', targetSets: 3, targetReps: 'AMRAP', notes: 'Lean forward' }, { name: 'Cable Lateral Raise', targetSets: 4, targetReps: '12-15', notes: 'Continuous tension' }, { name: 'Cable Tricep Ext.', targetSets: 3, targetReps: '10-15', notes: 'Use rope' }] },
+      { id: 'Pull 1', exercises: [{ name: 'Chest-Supported DB Row', targetSets: 4, targetReps: '8-12', notes: '45-degree bench' }, { name: 'Lat Pull Down', targetSets: 3, targetReps: '8-12', notes: 'Neutral grip' }, { name: 'Cable Reverse Flys', targetSets: 4, targetReps: '12-15', notes: 'Cables at chest height' }, { name: 'Preacher Curls', targetSets: 3, targetReps: '10-12', notes: 'Strict form' }, { name: 'DB Hammer Curls', targetSets: 3, targetReps: '10-12', notes: 'Squeeze at top' }] },
+      { id: 'Legs 1', exercises: [{ name: 'Transformer Bar Squats', targetSets: 4, targetReps: '6-10', notes: 'Upright torso' }, { name: 'Good Mornings', targetSets: 4, targetReps: '10-12', notes: 'Soft knees' }, { name: 'Walking Lunges', targetSets: 3, targetReps: '10-12/leg', notes: 'Deep stretch' }, { name: 'Leg Extensions', targetSets: 4, targetReps: '12-15', notes: '1-sec pause at top' }, { name: 'Calf Raises', targetSets: 4, targetReps: '12-15', notes: 'Pause at bottom' }] },
+      { id: 'Push 2', exercises: [{ name: 'DB Shoulder Press', targetSets: 4, targetReps: '8-12', notes: 'Back supported' }, { name: 'Chest-Supported Lateral', targetSets: 4, targetReps: '12-15', notes: 'High incline bench' }, { name: 'Low-to-High Crossover', targetSets: 4, targetReps: '12-15', notes: 'Constant tension' }, { name: 'Flat Bench DB Flys', targetSets: 3, targetReps: '10-12', notes: 'Focus on bottom stretch' }, { name: 'Tricep Pushdowns', targetSets: 4, targetReps: '12-15', notes: 'Pull rope apart' }] },
+      { id: 'Pull 2', exercises: [{ name: '1-Arm Lat Pull-Ins', targetSets: 4, targetReps: '10-12', notes: 'Sit sideways' }, { name: 'T-Bar Row', targetSets: 4, targetReps: '8-12', notes: 'V-Handle' }, { name: 'Straight Arm Pullover', targetSets: 3, targetReps: '12-15', notes: 'Lat sweep' }, { name: 'Trap Bar Shrugs', targetSets: 4, targetReps: '10-12', notes: 'Heavy load' }, { name: 'Incline DB Curls', targetSets: 4, targetReps: '10-12', notes: 'Dead straight arms' }] },
+      { id: 'Legs 2', exercises: [{ name: 'Trap Bar RDLs', targetSets: 4, targetReps: '8-12', notes: 'Hips back' }, { name: 'Bulgarian Split Squats', targetSets: 3, targetReps: '8-12/leg', notes: 'Deep stretch' }, { name: 'Back Extension', targetSets: 3, targetReps: '10-15', notes: 'Squeeze glutes' }, { name: 'Leg Curls', targetSets: 4, targetReps: '12-15', notes: 'Pause at top' }, { name: 'Seated Calf Raise', targetSets: 4, targetReps: '12-15', notes: 'Slow and controlled' }] }
     ];
 
-    const CANDICE_CORE = {
-      title: "TVA & Deep Core Rebuild",
+    const DEFAULT_CANDICE_CORE = {
+      title: "TVA & Deep Core",
       exercises: [
-        { name: 'Deadbugs', targetSets: 3, targetReps: '10/side', notes: 'Keep lower back glued to the floor. No arching.' },
-        { name: 'Cable Pallof Press', targetSets: 3, targetReps: '10/side', notes: 'Anti-rotation. Hold for 2s extended.' },
-        { name: 'Heel Taps', targetSets: 3, targetReps: '15/side', notes: 'Supine. Move from the hip, maintain braced core.' }
+        { name: 'Deadbugs', targetSets: 3, targetReps: '10/side', notes: 'No back arching.' },
+        { name: 'Cable Pallof Press', targetSets: 3, targetReps: '10/side', notes: 'Anti-rotation.' },
+        { name: 'Heel Taps', targetSets: 3, targetReps: '15/side', notes: 'Maintain braced core.' }
       ]
     };
 
     // --- DAILY QUOTE COMPONENT ---
     function DailyQuote() {
-      const [quote, setQuote] = useState({ text: 'LOADING PROTOCOL...', author: 'SYSTEM' });
+      const [quote, setQuote] = useState({ text: 'LOADING...', author: 'SYSTEM' });
 
       useEffect(() => {
-        const FITNESS_QUOTES = [
+        const QUOTES = [
           { text: "Discipline equals freedom.", author: "Jocko Willink" },
-          { text: "The last three or four reps is what makes the muscle grow. This area of pain divides a champion from someone who is not a champion.", author: "Arnold Schwarzenegger" },
-          { text: "Everybody wants to be a bodybuilder, but don't nobody want to lift no heavy-ass weights.", author: "Ronnie Coleman" },
+          { text: "The last three or four reps is what makes the muscle grow.", author: "Arnold Schwarzenegger" },
           { text: "Don't stop when you're tired. Stop when you're done.", author: "David Goggins" },
-          { text: "Strength does not come from winning. Your struggles develop your strengths.", author: "Arnold Schwarzenegger" },
           { text: "Blood, sweat and respect. First two you give, last one you earn.", author: "Dwayne Johnson" },
-          { text: "We must all suffer one of two things: the pain of discipline or the pain of regret.", author: "Jim Rohn" },
-          { text: "What a disgrace it is for a man to grow old without ever seeing the beauty and strength of which his body is capable.", author: "Socrates" },
-          { text: "I hated every minute of training, but I said, 'Don't quit. Suffer now and live the rest of your life as a champion.'", author: "Muhammad Ali" },
           { text: "There is no secret formula. I lift heavy, work hard, and aim to be the best.", author: "Ronnie Coleman" },
-          { text: "You have to push past your perceived limits, push past that point you thought was as far as you can go.", author: "Drew Brees" },
-          { text: "If you want something you've never had, you must be willing to do something you've never done.", author: "Thomas Jefferson" },
-          { text: "It is a shame for a man to grow old without seeing the beauty and strength of which his body is capable.", author: "Socrates" },
-          { text: "Vision creates faith and faith creates willpower. With faith there is no anxiety and no doubt - just absolute confidence in yourself.", author: "Arnold Schwarzenegger" }
+          { text: "If you want something you've never had, you must be willing to do something you've never done.", author: "Thomas Jefferson" }
         ];
-
-        // Pick a random quote on every load
-        const randomIndex = Math.floor(Math.random() * FITNESS_QUOTES.length);
-        setQuote(FITNESS_QUOTES[randomIndex]);
+        setQuote(QUOTES[Math.floor(Math.random() * QUOTES.length)]);
       }, []);
 
       return (
-        <div className="glass-card rounded-xl p-4 mb-4 relative overflow-hidden shadow-sm group">
-           <div className="absolute -right-2 -top-2 text-white/5 opacity-50 pointer-events-none">
-              <IconQuote size={80} />
-           </div>
-           <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
-             <p className="text-white/90 text-sm md:text-lg font-header tracking-wide leading-snug">"{quote.text}"</p>
-             <p className="text-[var(--robby-primary)] text-[9px] font-mono uppercase tracking-widest mt-1.5">— {quote.author}</p>
+        <div className="glass-card rounded-xl p-3 mb-4 relative overflow-hidden shadow-sm border border-white/5 mx-auto max-w-2xl">
+           <div className="relative z-10 flex flex-col items-center text-center">
+             <p className="text-white/90 text-sm font-header tracking-wide leading-snug">"{quote.text}"</p>
+             <p className="text-emerald-400 text-[9px] font-mono uppercase tracking-widest mt-1">— {quote.author}</p>
            </div>
         </div>
       );
     }
 
     // --- PROTOCOL BUILDER COMPONENT ---
-    function RoutineBuilder({ getActiveRoutines, onSave, onCancel }) {
+    function RoutineBuilder({ appSettings, onSave, onCancel }) {
       const [editBase, setEditBase] = useState('Robby');
-      const [editableRoutines, setEditableRoutines] = useState(() => JSON.parse(JSON.stringify(getActiveRoutines('Robby'))));
+      const [editableRobby, setEditableRobby] = useState(() => JSON.parse(JSON.stringify(appSettings.Robby || DEFAULT_ROUTINES)));
+      const [editableCandice, setEditableCandice] = useState(() => JSON.parse(JSON.stringify(appSettings.Candice || DEFAULT_ROUTINES)));
+      const [editableCandiceCore, setEditableCandiceCore] = useState(() => JSON.parse(JSON.stringify(appSettings.CandiceCore || DEFAULT_CANDICE_CORE)));
+      const [editableCardio, setEditableCardio] = useState(() => JSON.parse(JSON.stringify(appSettings.CardioOptions || DEFAULT_CARDIO)));
       const [activeTab, setActiveTab] = useState(0);
       const [deployTarget, setDeployTarget] = useState('Both');
 
-      const handleBaseChange = (base) => {
-          setEditBase(base);
-          setEditableRoutines(JSON.parse(JSON.stringify(getActiveRoutines(base))));
-          setActiveTab(0);
+      let activeData, setData;
+      if (editBase === 'Robby') { activeData = editableRobby; setData = setEditableRobby; } 
+      else if (editBase === 'Candice') {
+          if (activeTab < 6) { activeData = editableCandice; setData = setEditableCandice; } 
+          else { activeData = editableCandiceCore; setData = setEditableCandiceCore; }
+      }
+
+      const handleSaveDeploy = () => {
+         const newSettings = { ...appSettings };
+         if (deployTarget === 'Both' || deployTarget === 'Robby') newSettings.Robby = editableRobby;
+         if (deployTarget === 'Both' || deployTarget === 'Candice') { newSettings.Candice = editableCandice; newSettings.CandiceCore = editableCandiceCore; }
+         newSettings.CardioOptions = editableCardio;
+         onSave(newSettings);
       };
 
-      const activeRoutine = editableRoutines[activeTab];
-
       return (
-        <div className="max-w-[1000px] mx-auto p-4 md:p-6 pb-24">
-           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-6 border-b border-white/10">
+        <div className="max-w-[1000px] mx-auto p-3 md:p-6 pb-24">
+           <div className="flex flex-col md:flex-row justify-between gap-4 mb-4 pb-4 border-b border-white/10">
               <div>
-                 <h2 className="text-3xl font-header tracking-widest text-white leading-none mb-2">PROTOCOL BUILDER</h2>
-                 <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">Editing Base:</span>
-                     <select value={editBase} onChange={e => handleBaseChange(e.target.value)} className="bg-black/50 border border-white/10 rounded px-2 py-1 text-[10px] font-bold tracking-widest uppercase text-white/80 outline-none focus:border-indigo-500">
-                         <option value="Robby">Robby's Protocol</option>
-                         <option value="Candice">Candice's Protocol</option>
-                     </select>
+                 <h2 className="text-2xl font-header tracking-widest text-white mb-2">PROTOCOL BUILDER</h2>
+                 <div className="flex items-center gap-2 bg-black/40 border border-white/5 p-1 rounded-lg w-max">
+                     {['Robby', 'Candice', 'Cardio'].map(tab => (
+                         <button key={tab} onClick={() => { setEditBase(tab); setActiveTab(0); }} className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest btn-press ${editBase === tab ? 'bg-indigo-600 text-white' : 'text-neutral-500'}`}>{tab}</button>
+                     ))}
                  </div>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
-                 <select value={deployTarget} onChange={e => setDeployTarget(e.target.value)} className="bg-black/60 border border-white/20 rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-white outline-none focus:border-indigo-500">
-                     <option value="Both">Deploy to Both</option>
-                     <option value="Robby">Deploy to Robby Only</option>
-                     <option value="Candice">Deploy to Candice Only</option>
-                 </select>
-                 <button onClick={() => onSave(editableRoutines, deployTarget)} className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all btn-press">Deploy</button>
-                 <button onClick={onCancel} className="glass-card hover:bg-white/10 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all btn-press">Abort</button>
+                 {editBase !== 'Cardio' && (
+                     <select value={deployTarget} onChange={e => setDeployTarget(e.target.value)} className="bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-white outline-none">
+                         <option value="Both">Deploy to Both</option>
+                         <option value="Robby">Deploy to Robby</option>
+                         <option value="Candice">Deploy to Candice</option>
+                     </select>
+                 )}
+                 <button onClick={handleSaveDeploy} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-lg transition-all btn-press">Save</button>
+                 <button onClick={onCancel} className="glass-card text-white px-3 py-1.5 rounded-lg font-bold text-xs transition-all btn-press">Cancel</button>
               </div>
            </div>
 
-           <div className="flex gap-2 overflow-x-auto mb-6 pb-2 scrollbar-hide">
-              {editableRoutines.map((r, i) => (
-                 <button key={i} onClick={() => setActiveTab(i)} className={`px-5 py-2.5 rounded-lg font-bold text-sm tracking-widest uppercase whitespace-nowrap transition-all btn-press ${activeTab === i ? 'bg-white text-black shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'glass-card text-white/50 hover:text-white'}`}>
-                    {r.id}
-                 </button>
-              ))}
-           </div>
+           {editBase === 'Cardio' ? (
+               <div className="glass-card rounded-xl p-4">
+                  <h3 className="text-sm font-header tracking-widest text-white mb-3">Cardio Library</h3>
+                  <div className="space-y-2 mb-4">
+                     {editableCardio.map((opt, idx) => (
+                        <div key={idx} className="flex gap-2">
+                           <input type="text" value={opt} onChange={e => { const upd = [...editableCardio]; upd[idx] = e.target.value; setEditableCardio(upd); }} className="flex-1 bg-black/40 border border-white/10 rounded py-1.5 px-2 text-white text-xs outline-none" />
+                           <button onClick={() => { const upd = [...editableCardio]; upd.splice(idx, 1); setEditableCardio(upd); }} className="text-red-500/50 hover:text-red-500 p-1 btn-press"><IconTrash2 size={16}/></button>
+                        </div>
+                     ))}
+                  </div>
+                  <button onClick={() => setEditableCardio([...editableCardio, 'New Cardio'])} className="w-full py-2 bg-black/40 border border-dashed border-white/20 text-neutral-400 text-[10px] font-bold tracking-widest uppercase rounded btn-press">+ Add Option</button>
+               </div>
+           ) : (
+               <>
+                   <div className="flex gap-2 overflow-x-auto mb-4 pb-2 scrollbar-hide">
+                      {editableRobby.map((r, i) => (
+                         <button key={i} onClick={() => setActiveTab(i)} className={`px-3 py-1.5 rounded-lg font-bold text-[10px] tracking-widest uppercase whitespace-nowrap btn-press ${activeTab === i ? 'bg-white text-black' : 'glass-card text-white/50'}`}>{r.id}</button>
+                      ))}
+                      {editBase === 'Candice' && (
+                         <button onClick={() => setActiveTab(6)} className={`px-3 py-1.5 rounded-lg font-bold text-[10px] tracking-widest uppercase whitespace-nowrap btn-press ${activeTab === 6 ? 'bg-emerald-500 text-black' : 'glass-card text-emerald-600/60'}`}>Core Protocol</button>
+                      )}
+                   </div>
 
-           <div className="glass-card rounded-2xl p-4 md:p-6 border border-white/10 relative overflow-hidden shadow-2xl">
-              <div className="flex items-center gap-3 mb-6 relative z-10">
-                 <h3 className="text-2xl font-header text-white tracking-widest leading-none">{activeRoutine.id} SEQUENCE</h3>
-              </div>
-              
-              <div className="space-y-4 relative z-10">
-                 {activeRoutine.exercises.map((ex, exIdx) => (
-                    <div key={exIdx} className="bg-black/60 border border-white/5 rounded-xl p-4 flex flex-col md:flex-row gap-4 items-start md:items-center relative group">
-                       <div className="flex justify-between items-center w-full md:w-auto md:hidden mb-2">
-                          <span className="text-[10px] text-white/40 font-bold tracking-widest uppercase">Exercise {exIdx + 1}</span>
-                          <button onClick={() => {
-                              const updated = [...editableRoutines];
-                              updated[activeTab].exercises.splice(exIdx, 1);
-                              setEditableRoutines(updated);
-                           }} className="text-red-500/50 hover:text-red-500 p-1">
-                              <IconX size={16} />
-                           </button>
-                       </div>
-
-                       <div className="flex-1 w-full">
-                          <label className="hidden md:block text-[9px] text-white/40 font-bold tracking-widest uppercase mb-1">Movement Name</label>
-                          <input type="text" value={ex.name} onChange={e => {
-                             const updated = [...editableRoutines];
-                             updated[activeTab].exercises[exIdx].name = e.target.value;
-                             setEditableRoutines(updated);
-                          }} className="w-full bg-black/40 border border-white/10 rounded py-2 px-3 text-white font-bold focus:border-indigo-500 outline-none transition-colors text-sm" placeholder="Exercise Name" />
-                       </div>
-
-                       <div className="flex gap-3 w-full md:w-auto">
-                          <div className="w-20 shrink-0">
-                             <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Sets</label>
-                             <input type="number" value={ex.targetSets} onChange={e => {
-                                const updated = [...editableRoutines];
-                                updated[activeTab].exercises[exIdx].targetSets = parseInt(e.target.value) || 0;
-                                setEditableRoutines(updated);
-                             }} className="w-full bg-black/40 border border-white/10 rounded py-2 px-2 text-white font-mono text-center focus:border-indigo-500 outline-none transition-colors text-sm" />
-                          </div>
-
-                          <div className="w-24 shrink-0">
-                             <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Reps</label>
-                             <input type="text" value={ex.targetReps} onChange={e => {
-                                const updated = [...editableRoutines];
-                                updated[activeTab].exercises[exIdx].targetReps = e.target.value;
-                                setEditableRoutines(updated);
-                             }} className="w-full bg-black/40 border border-white/10 rounded py-2 px-2 text-white font-mono text-center focus:border-indigo-500 outline-none transition-colors text-sm" />
-                          </div>
-                       </div>
-
-                       <div className="flex-[1.5] w-full flex items-end gap-2">
-                          <div className="flex-1">
-                             <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Cues / Notes</label>
-                             <input type="text" value={ex.notes} onChange={e => {
-                                const updated = [...editableRoutines];
-                                updated[activeTab].exercises[exIdx].notes = e.target.value;
-                                setEditableRoutines(updated);
-                             }} className="w-full bg-black/40 border border-white/10 rounded py-2 px-3 text-white/80 text-xs focus:border-indigo-500 outline-none transition-colors" placeholder="Form cues..." />
-                          </div>
-                          
-                          <button onClick={() => {
-                              const updated = [...editableRoutines];
-                              updated[activeTab].exercises.splice(exIdx, 1);
-                              setEditableRoutines(updated);
-                           }} className="hidden md:flex text-red-500/30 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors shrink-0 mb-[2px]">
-                              <IconX size={18} />
-                           </button>
-                       </div>
-                    </div>
-                 ))}
-              </div>
-
-              <button onClick={() => {
-                 const updated = [...editableRoutines];
-                 updated[activeTab].exercises.push({ name: '', targetSets: 3, targetReps: '8-12', notes: '' });
-                 setEditableRoutines(updated);
-              }} className="mt-6 w-full py-4 glass-card border border-dashed border-white/20 text-white/50 hover:text-white hover:border-white/50 rounded-xl flex items-center justify-center font-bold tracking-widest uppercase text-xs transition-all btn-press">
-                 + Add New Movement
-              </button>
-           </div>
+                   <div className="glass-card rounded-xl p-3 md:p-4">
+                      <h3 className="text-lg font-header tracking-widest text-white mb-4">{activeTab === 6 ? editableCandiceCore.title : activeData[activeTab].id + " SEQUENCE"}</h3>
+                      <div className="space-y-3">
+                         {(activeTab === 6 ? editableCandiceCore.exercises : activeData[activeTab].exercises).map((ex, exIdx) => (
+                            <div key={exIdx} className="bg-black/60 border border-white/5 rounded p-3 flex flex-col md:flex-row gap-2 items-start relative group">
+                               <div className="flex justify-between items-center w-full md:w-auto md:hidden mb-1">
+                                  <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Exercise {exIdx + 1}</span>
+                                  <button onClick={() => { if(activeTab===6){const u={...editableCandiceCore};u.exercises.splice(exIdx,1);setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises.splice(exIdx,1);setData(u);} }} className="text-red-500/50"><IconX size={14} /></button>
+                               </div>
+                               <div className="flex-1 w-full">
+                                  <input type="text" value={ex.name} onChange={e => { if(activeTab===6){const u={...editableCandiceCore};u.exercises[exIdx].name=e.target.value;setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises[exIdx].name=e.target.value;setData(u);} }} className="w-full bg-black/40 border border-white/10 rounded py-1.5 px-2 text-white text-xs font-bold outline-none" placeholder="Exercise Name" />
+                               </div>
+                               <div className="flex gap-2 w-full md:w-auto">
+                                  <input type="number" value={ex.targetSets} onChange={e => { if(activeTab===6){const u={...editableCandiceCore};u.exercises[exIdx].targetSets=parseInt(e.target.value)||0;setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises[exIdx].targetSets=parseInt(e.target.value)||0;setData(u);} }} className="w-12 bg-black/40 border border-white/10 rounded py-1.5 px-1 text-white text-xs text-center outline-none" placeholder="Sets" />
+                                  <input type="text" value={ex.targetReps} onChange={e => { if(activeTab===6){const u={...editableCandiceCore};u.exercises[exIdx].targetReps=e.target.value;setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises[exIdx].targetReps=e.target.value;setData(u);} }} className="w-16 bg-black/40 border border-white/10 rounded py-1.5 px-1 text-white text-xs text-center outline-none" placeholder="Reps" />
+                               </div>
+                               <div className="flex-[1.5] w-full flex items-center gap-2">
+                                  <input type="text" value={ex.notes} onChange={e => { if(activeTab===6){const u={...editableCandiceCore};u.exercises[exIdx].notes=e.target.value;setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises[exIdx].notes=e.target.value;setData(u);} }} className="flex-1 bg-black/40 border border-white/10 rounded py-1.5 px-2 text-white/80 text-[10px] outline-none" placeholder="Cues/Notes" />
+                                  <button onClick={() => { if(activeTab===6){const u={...editableCandiceCore};u.exercises.splice(exIdx,1);setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises.splice(exIdx,1);setData(u);} }} className="hidden md:flex text-red-500/30 hover:text-red-500 p-1 rounded transition-colors btn-press"><IconTrash2 size={16} /></button>
+                               </div>
+                            </div>
+                         ))}
+                      </div>
+                      <button onClick={() => { if(activeTab===6){const u={...editableCandiceCore};u.exercises.push({name:'',targetSets:3,targetReps:'10',notes:''});setEditableCandiceCore(u);}else{const u=[...activeData];u[activeTab].exercises.push({name:'',targetSets:3,targetReps:'8-12',notes:''});setData(u);} }} className="mt-4 w-full py-2 glass-card border border-dashed border-white/20 text-white/50 hover:text-white rounded text-[10px] font-bold tracking-widest uppercase btn-press">+ Add Movement</button>
+                   </div>
+               </>
+           )}
         </div>
       )
     }
 
-    // --- MAIN APP COMPONENT ---
-    function App() {
-      const [workoutsDb, setWorkoutsDb] = useState([]);
-      const [customRoutines, setCustomRoutines] = useState({ Robby: null, Candice: null });
-      const [loading, setLoading] = useState(true);
-      const [activeUsers, setActiveUsers] = useState([]);
-      const [selectedRoutines, setSelectedRoutines] = useState({});
-      const [view, setView] = useState('dashboard');
-      const [savedSession, setSavedSession] = useState(null);
-      const [editSession, setEditSession] = useState(null);
-      const [showPlateCalc, setShowPlateCalc] = useState(false);
-      const [showHeatmap, setShowHeatmap] = useState(null);
-
-      // Helper to dynamically pull the right routine array
-      const getActiveRoutines = (user) => {
-         if (customRoutines && customRoutines[user]) return customRoutines[user];
-         return DEFAULT_ROUTINES;
-      };
-
-      // FORCE HARD REFRESH FUNCTION
-      const forceRefresh = () => {
-          localStorage.clear();
-          if ('caches' in window) {
-              caches.keys().then((names) => {
-                  names.forEach(name => caches.delete(name));
-              });
-          }
-          if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for(let registration of registrations) {
-                      registration.unregister();
-                  }
-              });
-          }
-          setTimeout(() => { window.location.reload(true); }, 500);
-      };
-
-      // STRICT CLOUD SYNC INITIALIZATION
-      useEffect(() => {
-        let unsubscribeWorkouts = () => {};
-        let unsubscribeSession = () => {};
-        let unsubscribeRoutines = () => {};
-
-        const initializeCloudSync = async () => {
-           try {
-             await auth.signInAnonymously();
-           } catch(err) {
-             console.warn("Mobile Auth Warn:", err.message);
-           }
-
-           const baseDataPath = `artifacts/${appId}/public/data`;
-
-           // Listen to Historical Workouts
-           unsubscribeWorkouts = db.collection(`${baseDataPath}/workouts`)
-             .onSnapshot(snapshot => {
-                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Sort in memory to avoid Firestore index requirements on mobile
-                data.sort((a, b) => new Date(b.date) - new Date(a.date));
-                setWorkoutsDb(data);
-                setLoading(false);
-             }, err => {
-                console.error("Firestore Workouts Error:", err);
-                setLoading(false); 
-             });
-
-           // Listen to Paused Sessions
-           unsubscribeSession = db.collection(`${baseDataPath}/app_state`).doc('active_session')
-             .onSnapshot(doc => {
-                if (doc.exists) setSavedSession(doc.data());
-                else setSavedSession(null);
-             });
-
-           // Listen to Custom Builder Protocols
-           unsubscribeRoutines = db.collection(`${baseDataPath}/app_state`).doc('custom_routines')
-             .onSnapshot(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    // Handle legacy data structure safely
-                    if (data.routines) {
-                        setCustomRoutines({ Robby: data.routines, Candice: data.routines });
-                    } else {
-                        setCustomRoutines({ Robby: data.Robby || null, Candice: data.Candice || null });
-                    }
-                } else {
-                    setCustomRoutines({ Robby: null, Candice: null });
-                }
-             });
-        };
-
-        initializeCloudSync();
-
-        return () => {
-           unsubscribeWorkouts();
-           unsubscribeSession();
-           unsubscribeRoutines();
-        };
-      }, []);
-
-      const getNextWorkoutId = (username) => {
-        const userRoutines = getActiveRoutines(username);
-        const userHistory = workoutsDb.filter(w => w.user === username);
-        if (userHistory.length === 0) return userRoutines[0].id;
-        
-        const lastWorkoutId = userHistory[0].routineId;
-        const currentIndex = userRoutines.findIndex(r => r.id === lastWorkoutId);
-        
-        if (currentIndex === -1 || currentIndex === userRoutines.length - 1) return userRoutines[0].id;
-        return userRoutines[currentIndex + 1].id;
-      };
-
-      const startWorkout = (users, routines) => {
-        setActiveUsers(users);
-        setSelectedRoutines(routines);
-        setView('workout');
-      };
-
-      const startEditWorkout = (session) => {
-        setEditSession(session);
-        setActiveUsers([session.user]);
-        setSelectedRoutines({ [session.user]: session.routineId });
-        setView('workout');
-      };
-
-      const resumeWorkout = () => {
-        if (savedSession) {
-           setActiveUsers(savedSession.users);
-           setView('workout');
-        }
-      };
-
-      const handleSaveProgress = (users, sessionData) => {
-        const stateToSave = { users, sessionData };
-        db.collection(`artifacts/${appId}/public/data/app_state`).doc('active_session').set(stateToSave).catch(console.error);
-        setView('dashboard');
-        setActiveUsers([]);
-      };
-
-      const clearSavedSession = () => {
-        db.collection(`artifacts/${appId}/public/data/app_state`).doc('active_session').delete().catch(()=>{});
-      };
-
-      const handleFinishWorkout = async (workoutDataPayloads) => {
-        try {
-          if (editSession) {
-              const payload = workoutDataPayloads[0];
-              await db.collection(`artifacts/${appId}/public/data/workouts`).doc(editSession.id).update({
-                  ...payload
-              });
-          } else {
-              const batch = db.batch();
-              for (const payload of workoutDataPayloads) {
-                 const docRef = db.collection(`artifacts/${appId}/public/data/workouts`).doc(); 
-                 batch.set(docRef, {
-                   ...payload,
-                   date: new Date().toISOString()
-                 });
-              }
-              await batch.commit();
-          }
-          if (!editSession) clearSavedSession(); 
-        } catch (err) {
-          console.error("Error saving workout:", err);
-          alert("Failed to upload session to Cloud. Please try again.");
-        }
-        setView('dashboard');
-        setActiveUsers([]);
-        setEditSession(null);
-      };
-
-      const handleCancelWorkout = () => {
-         if (!editSession) clearSavedSession();
-         setView('dashboard');
-         setActiveUsers([]);
-         setEditSession(null);
-      };
-
-      const handleSaveRoutines = async (newRoutines, targetUser) => {
-        try {
-            const docRef = db.collection(`artifacts/${appId}/public/data/app_state`).doc('custom_routines');
-            const docSnap = await docRef.get();
-            let currentData = docSnap.exists ? docSnap.data() : { Robby: null, Candice: null };
-            
-            // Legacy safety mapping
-            if (currentData.routines) {
-                currentData.Robby = currentData.routines;
-                currentData.Candice = currentData.routines;
-                delete currentData.routines;
-            }
-
-            if (targetUser === 'Both') {
-                currentData.Robby = newRoutines;
-                currentData.Candice = newRoutines;
-            } else if (targetUser === 'Robby') {
-                currentData.Robby = newRoutines;
-            } else if (targetUser === 'Candice') {
-                currentData.Candice = newRoutines;
-            }
-
-            await docRef.set(currentData);
-            setView('dashboard');
-        } catch (err) {
-            console.error(err);
-            alert("Failed to save protocol to cloud.");
-        }
-      };
-
-      if (loading) return (
-        <div className="min-h-screen flex flex-col items-center justify-center text-neutral-300 bg-[#121212]">
-          <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-          <p className="font-header text-xl tracking-widest text-neutral-500">SYNCING CLOUD DATA...</p>
-        </div>
-      );
-
-      return (
-        <div className="min-h-screen bg-neutral-950 text-neutral-100 p-4 md:p-6 pb-20 font-sans relative">
-          {view === 'dashboard' && (
-            <Dashboard 
-               workoutsDb={workoutsDb} 
-               onStart={startWorkout} 
-               getNextWorkoutId={getNextWorkoutId} 
-               savedSession={savedSession}
-               onResume={resumeWorkout}
-               onEditSession={startEditWorkout}
-               onTogglePlateCalc={() => setShowPlateCalc(true)}
-               onToggleHeatmap={(user) => setShowHeatmap(user)}
-               forceRefresh={forceRefresh}
-               getActiveRoutines={getActiveRoutines}
-               onEditProtocol={() => setView('builder')}
-            />
-          )}
-          {view === 'workout' && (
-            <ActiveWorkout 
-               users={activeUsers} 
-               selectedRoutines={selectedRoutines}
-               workoutsDb={workoutsDb} 
-               onFinish={handleFinishWorkout} 
-               onSaveProgress={handleSaveProgress}
-               onCancel={handleCancelWorkout} 
-               initialSessionData={savedSession && savedSession.users.join(',') === activeUsers.join(',') ? savedSession.sessionData : null}
-               editSession={editSession}
-               onTogglePlateCalc={() => setShowPlateCalc(true)}
-               getActiveRoutines={getActiveRoutines}
-            />
-          )}
-          {view === 'builder' && (
-            <RoutineBuilder 
-               getActiveRoutines={getActiveRoutines}
-               onSave={handleSaveRoutines}
-               onCancel={() => setView('dashboard')}
-            />
-          )}
-
-          {showPlateCalc && <PlateLoaderModal onClose={() => setShowPlateCalc(false)} />}
-          {showHeatmap && <RecoveryHeatmapModal user={showHeatmap} workoutsDb={workoutsDb} onClose={() => setShowHeatmap(null)} />}
-        </div>
-      );
-    }
-
-    // --- RECOVERY HEATMAP COMPONENT ---
+    // --- RECOVERY HEATMAP MODAL ---
     function RecoveryHeatmapModal({ user, workoutsDb, onClose }) {
        const fatigueMap = useMemo(() => {
           const map = {};
           const now = new Date().getTime();
-          
           const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(b.date) - new Date(a.date));
-          
           const allMuscles = ['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Forearms', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves', 'Rectus Abdominis', 'Transverse Abdominis', 'Core_IAP'];
           allMuscles.forEach(m => map[m] = { fatigue: 0, lastHit: null, rpe: 0 });
 
           userWorkouts.forEach(workout => {
              const workoutDate = new Date(workout.date).getTime();
              const hoursElapsed = (now - workoutDate) / (1000 * 60 * 60);
-             
              if (hoursElapsed > 168) return;
 
              Object.entries(workout.exercises).forEach(([exName, exData]) => {
                 const rpe = parseFloat(exData.rpe) || 7; 
                 const muscles = EXERCISE_MUSCLE_MAP[exName] || [];
-                
                 muscles.forEach(muscle => {
                    if (map[muscle] && map[muscle].lastHit === null) {
-                      map[muscle].lastHit = workoutDate;
-                      map[muscle].rpe = rpe;
-                      
+                      map[muscle].lastHit = workoutDate; map[muscle].rpe = rpe;
                       let baseFatigue = rpe * 10; 
-                      let currentFatigue = Math.max(0, baseFatigue * (1 - (hoursElapsed / 72)));
-                      map[muscle].fatigue = currentFatigue;
+                      map[muscle].fatigue = Math.max(0, baseFatigue * (1 - (hoursElapsed / 72)));
                    }
                 });
              });
           });
-
           return map;
        }, [workoutsDb, user]);
 
        const getColor = (fatigue) => {
-          if (fatigue > 75) return '#ef4444'; // Red
-          if (fatigue > 50) return '#f97316'; // Orange
-          if (fatigue > 25) return '#eab308'; // Yellow
-          return '#22c55e'; // Green
+          if (fatigue > 75) return '#ef4444'; 
+          if (fatigue > 50) return '#f97316'; 
+          if (fatigue > 25) return '#eab308'; 
+          return '#22c55e'; 
        };
-
-       const isCandice = user === 'Candice';
-       const iapFatigue = fatigueMap['Core_IAP']?.fatigue || 0;
-       const taFatigue = fatigueMap['Transverse Abdominis']?.fatigue || 0;
-       const coreAlert = isCandice && (iapFatigue > 50 || taFatigue > 60);
 
        const AnatomicalModel = () => (
           <div className="flex justify-center items-center gap-4 sm:gap-12 scale-90 sm:scale-100">
@@ -757,7 +409,6 @@
                    <path d="M 75 40 Q 85 45 85 55 L 80 65 L 70 50 Z" fill={getColor(Math.max(fatigueMap['Front Delts'].fatigue, fatigueMap['Side Delts'].fatigue))} stroke="#111" strokeWidth="1"/>
                    <path d="M 30 45 L 70 45 L 75 65 L 50 75 L 25 65 Z" fill={getColor(fatigueMap['Chest'].fatigue)} stroke="#111" strokeWidth="2"/>
                    <g>
-                      {isCandice && coreAlert && <rect x="30" y="75" width="40" height="45" fill="none" stroke="#ef4444" strokeWidth="3" className="animate-pulse" />}
                       <path d="M 35 75 L 65 75 L 60 120 L 40 120 Z" fill={getColor(fatigueMap['Rectus Abdominis'].fatigue)} stroke="#111" strokeWidth="2"/>
                       <line x1="50" y1="75" x2="50" y2="120" stroke="#111" strokeWidth="1.5" />
                       <line x1="37" y1="90" x2="63" y2="90" stroke="#111" strokeWidth="1.5" />
@@ -769,8 +420,6 @@
                    <path d="M 90 90 L 80 95 L 85 120 L 95 115 Z" fill={getColor(fatigueMap['Forearms'].fatigue)} stroke="#111" strokeWidth="1.5"/>
                    <path d="M 35 125 L 48 125 L 45 170 L 30 165 Z" fill={getColor(fatigueMap['Quads'].fatigue)} stroke="#111" strokeWidth="2"/>
                    <path d="M 65 125 L 52 125 L 55 170 L 70 165 Z" fill={getColor(fatigueMap['Quads'].fatigue)} stroke="#111" strokeWidth="2"/>
-                   <path d="M 30 175 L 45 175 L 40 210 L 35 210 Z" fill="#262626" stroke="#111" strokeWidth="1"/>
-                   <path d="M 70 175 L 55 175 L 60 210 L 65 210 Z" fill="#262626" stroke="#111" strokeWidth="1"/>
                 </svg>
              </div>
              <div className="relative">
@@ -798,64 +447,12 @@
           <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[100] p-4" onClick={onClose}>
              <div className="glass-card rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                 <div className="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
-                   <div>
-                      <h2 className="text-2xl font-header tracking-wide text-white flex items-center">
-                         <IconActivity size={24} className={`mr-2 ${isCandice ? 'text-[var(--candice-primary)]' : 'text-[var(--robby-primary)]'}`}/> 
-                         {user}'s Recovery Heatmap
-                      </h2>
-                      <p className="text-xs text-neutral-400">72-Hour Scientific Decay Engine</p>
-                   </div>
-                   <button onClick={onClose} className="text-neutral-400 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={20} /></button>
+                   <h2 className="text-2xl font-header tracking-wide text-white flex items-center"><IconActivity size={24} className="mr-2"/> {user}'s Heatmap</h2>
+                   <button onClick={onClose} className="text-neutral-400 hover:text-white bg-black/50 p-2 rounded-full btn-press"><IconX size={20} /></button>
                 </div>
-                
                 <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 bg-black/20">
                    <div className="flex-1 rounded-2xl border border-white/5 bg-black/40 p-6 flex flex-col items-center justify-center">
                       <AnatomicalModel />
-                      <div className="mt-8 w-full max-w-xs">
-                         <div className="flex justify-between text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-1.5">
-                            <span>High Fatigue</span>
-                            <span>Fully Recovered</span>
-                         </div>
-                         <div className="h-2 w-full rounded-full bg-gradient-to-r from-red-500 via-orange-500 to-green-500 shadow-inner"></div>
-                      </div>
-                   </div>
-
-                   <div className="w-full md:w-64 flex flex-col gap-4">
-                      {isCandice && (
-                         <div className={`p-4 rounded-xl border ${coreAlert ? 'bg-red-500/10 border-red-500/30' : 'bg-black/40 border-white/5'}`}>
-                            <h4 className={`text-xs font-bold uppercase tracking-widest mb-2 ${coreAlert ? 'text-red-400' : 'text-neutral-400'}`}>Core / IAP Status</h4>
-                            {coreAlert ? (
-                               <p className="text-xs text-red-300 leading-relaxed">High Intra-Abdominal Pressure (IAP) recently detected. Allow Transverse Abdominis and pelvic floor to fully recover before heavy spinal loading.</p>
-                            ) : (
-                               <p className="text-xs text-emerald-400 leading-relaxed">Deep core and pelvic floor recovered. Safe for structural loading.</p>
-                            )}
-                         </div>
-                      )}
-
-                      <div className="glass-card rounded-xl p-4 flex-1 overflow-y-auto max-h-[300px]">
-                         <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Muscle Status</h4>
-                         <div className="space-y-3">
-                            {Object.entries(fatigueMap)
-                               .filter(([m, d]) => d.lastHit !== null && m !== 'Core_IAP')
-                               .sort((a,b) => b[1].fatigue - a[1].fatigue)
-                               .map(([muscle, data]) => {
-                                  const color = getColor(data.fatigue);
-                                  const hours = Math.round((new Date().getTime() - data.lastHit) / (1000 * 60 * 60));
-                                  return (
-                                     <div key={muscle} className="flex items-center justify-between">
-                                        <div>
-                                           <span className="text-sm font-medium text-neutral-200 block">{muscle}</span>
-                                           <span className="text-[10px] text-neutral-500">{hours} hrs ago • RPE {data.rpe}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                           <span className="text-xs font-mono font-bold" style={{color}}>{Math.round(data.fatigue)}%</span>
-                                        </div>
-                                     </div>
-                                  )
-                               })
-                            }
-                         </div>
-                      </div>
                    </div>
                 </div>
              </div>
@@ -863,1229 +460,418 @@
        );
     }
 
-    // --- VISUAL PLATE LOADER COMPONENT ---
-    function PlateLoaderModal({ onClose }) {
-       const [target, setTarget] = useState('');
-       const [barWeight, setBarWeight] = useState(45);
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [workoutsDb, setWorkoutsDb] = useState([]);
+      const [appSettings, setAppSettings] = useState({ Robby: DEFAULT_ROUTINES, Candice: DEFAULT_ROUTINES, CandiceCore: DEFAULT_CANDICE_CORE, CardioOptions: DEFAULT_CARDIO });
+      const [loading, setLoading] = useState(true);
+      const [activeUsers, setActiveUsers] = useState([]);
+      const [selectedRoutines, setSelectedRoutines] = useState({});
+      const [view, setView] = useState('dashboard');
+      const [savedSession, setSavedSession] = useState(null);
+      const [editSession, setEditSession] = useState(null);
+      const [showSpreadsheet, setShowSpreadsheet] = useState(null); 
 
-       const barbells = [
-          { name: 'Standard Olympic', weight: 45 },
-          { name: 'Candice Barbell', weight: 35 },
-          { name: 'Short Bar', weight: 35 },
-          { name: 'Kabuki Transformer', weight: 55 },
-          { name: 'Prime Trap Bar', weight: 73 }
-       ];
+      const forceRefresh = () => {
+          localStorage.clear();
+          if ('caches' in window) caches.keys().then((names) => names.forEach(name => caches.delete(name)));
+          if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+          setTimeout(() => { window.location.reload(true); }, 500);
+      };
 
-       const plateStyles = {
-          45:   { color: 'bg-blue-600', height: 'h-32', width: 'w-6', border: 'border-blue-500', labelColor: 'text-white font-bold', text: 'text-xs' },
-          35:   { color: 'bg-yellow-500', height: 'h-32', width: 'w-5', border: 'border-yellow-400', labelColor: 'text-black font-bold', text: 'text-xs' },
-          25:   { color: 'bg-green-600', height: 'h-24', width: 'w-5', border: 'border-green-500', labelColor: 'text-white font-bold', text: 'text-[10px]' },
-          10:   { color: 'bg-neutral-800', height: 'h-16', width: 'w-4', border: 'border-neutral-600', labelColor: 'text-white font-bold', text: 'text-[9px]' },
-          5:    { color: 'bg-neutral-800', height: 'h-12', width: 'w-3', border: 'border-neutral-600', labelColor: 'text-white font-bold', text: 'text-[8px]' },
-          2.5:  { color: 'bg-green-600', height: 'h-10', width: 'w-2.5', border: 'border-green-400', labelColor: 'text-white font-medium', text: 'text-[7px]' },
-          1.25: { color: 'bg-neutral-200', height: 'h-8', width: 'w-2', border: 'border-white', labelColor: 'text-black font-medium', text: 'text-[6px]' }
-       };
+      useEffect(() => {
+        let unsubscribeWorkouts = () => {};
+        let unsubscribeSession = () => {};
+        let unsubscribeRoutines = () => {};
 
-       const loadedPlates = useMemo(() => {
-          const t = parseFloat(target);
-          if (!t || isNaN(t) || t <= barWeight) return [];
-          
-          let remaining = (t - barWeight) / 2;
-          remaining = Math.round(remaining * 100) / 100;
-          
-          const available = [45, 35, 25, 10, 5, 2.5, 1.25];
-          const plates = [];
-          
-          for (let p of available) {
-             while (remaining >= p) {
-                 plates.push(p);
-                 remaining = Math.round((remaining - p) * 100) / 100;
-             }
+        const initSync = async () => {
+           try { await auth.signInAnonymously(); } catch(err) {}
+
+           const basePath = `artifacts/${appId}/public/data`;
+           
+           unsubscribeWorkouts = db.collection(`${basePath}/workouts`).onSnapshot(snapshot => {
+                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setWorkoutsDb(data);
+                setLoading(false);
+           }, err => { setLoading(false); });
+
+           unsubscribeSession = db.collection(`${basePath}/app_state`).doc('active_session').onSnapshot(doc => {
+                if (doc.exists) setSavedSession(doc.data()); else setSavedSession(null);
+           });
+
+           unsubscribeRoutines = db.collection(`${basePath}/app_state`).doc('app_settings').onSnapshot(doc => {
+                if (doc.exists) setAppSettings(prev => ({ ...prev, ...doc.data() }));
+           });
+        };
+
+        initSync();
+        return () => { unsubscribeWorkouts(); unsubscribeSession(); unsubscribeRoutines(); };
+      }, []);
+
+      const getNextWorkoutId = (username) => {
+        const routines = appSettings[username] || DEFAULT_ROUTINES;
+        const history = workoutsDb.filter(w => w.user === username);
+        if (history.length === 0) return routines[0].id;
+        const lastId = history[0].routineId;
+        const idx = routines.findIndex(r => r.id === lastId);
+        if (idx === -1 || idx === routines.length - 1) return routines[0].id;
+        return routines[idx + 1].id;
+      };
+
+      const startWorkout = (users, routines) => { setActiveUsers(users); setSelectedRoutines(routines); setView('workout'); };
+      const startEditWorkout = (session) => { setEditSession(session); setActiveUsers([session.user]); setSelectedRoutines({ [session.user]: session.routineId }); setView('workout'); };
+      const resumeWorkout = () => { if (savedSession) { setActiveUsers(savedSession.users); setView('workout'); } };
+
+      const handleSaveProgress = (users, sessionData) => {
+        db.collection(`artifacts/${appId}/public/data/app_state`).doc('active_session').set({ users, sessionData });
+        setView('dashboard'); setActiveUsers([]);
+      };
+      const clearSavedSession = () => { db.collection(`artifacts/${appId}/public/data/app_state`).doc('active_session').delete().catch(()=>{}); };
+
+      const handleFinishWorkout = async (payloads) => {
+        try {
+          if (editSession) {
+              await db.collection(`artifacts/${appId}/public/data/workouts`).doc(editSession.id).update({...payloads[0]});
+          } else {
+              const batch = db.batch();
+              for (const p of payloads) {
+                 batch.set(db.collection(`artifacts/${appId}/public/data/workouts`).doc(), {...p, date: new Date().toISOString()});
+              }
+              await batch.commit();
           }
-          return plates;
-       }, [target, barWeight]);
+          if (!editSession) clearSavedSession(); 
+        } catch (err) {}
+        setView('dashboard'); setActiveUsers([]); setEditSession(null);
+      };
 
-       const plateBreakdown = loadedPlates.reduce((acc, curr) => {
-          acc[curr] = (acc[curr] || 0) + 1;
-          return acc;
-       }, {});
+      const handleSaveSettings = async (newSettings) => {
+        await db.collection(`artifacts/${appId}/public/data/app_state`).doc('app_settings').set(newSettings, { merge: true });
+        setView('dashboard');
+      };
 
-       return (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[100] p-4" onClick={onClose}>
-             <div className="glass-card rounded-3xl w-full max-w-md overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
-                   <h2 className="text-2xl font-header tracking-wide text-white flex items-center"><IconCalculator size={24} className="mr-2 text-amber-400"/> Plate Calculator</h2>
-                   <button onClick={onClose} className="text-neutral-400 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={20} /></button>
-                </div>
-                
-                <div className="p-6 bg-black/20">
-                   <div className="flex gap-4 mb-6">
-                      <div className="flex-1">
-                         <label className="text-[10px] text-neutral-500 font-bold tracking-widest uppercase block mb-1">Target Weight</label>
-                         <input 
-                            type="number" inputMode="decimal" autoFocus
-                            value={target} onChange={e => setTarget(e.target.value)}
-                            placeholder="lbs" 
-                            className="w-full glass-card rounded-xl py-3 px-4 text-white font-mono text-2xl font-bold focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
-                         />
-                      </div>
-                      <div className="flex-1">
-                         <label className="text-[10px] text-neutral-500 font-bold tracking-widest uppercase block mb-1">Barbell</label>
-                         <select 
-                            value={barWeight} 
-                            onChange={e => setBarWeight(parseFloat(e.target.value))}
-                            className="w-full glass-card rounded-xl p-3 text-sm text-neutral-300 font-semibold outline-none focus:border-amber-500 appearance-none h-[56px]"
-                         >
-                            {barbells.map(b => <option key={b.name} value={b.weight}>{b.name} ({b.weight})</option>)}
-                         </select>
-                      </div>
-                   </div>
-
-                   <div className="glass-card bg-black/40 rounded-2xl h-48 mb-6 flex flex-col justify-center relative overflow-hidden shadow-inner">
-                      {target && parseFloat(target) > barWeight ? (
-                         <div className="w-full flex items-center justify-start relative px-4 pt-4 overflow-x-auto min-w-full">
-                            {/* Inner Collar */}
-                            <div className="w-8 h-24 bg-gradient-to-r from-neutral-600 to-neutral-400 rounded-sm shadow-xl z-10 shrink-0 border-y border-l border-neutral-300" />
-                            
-                            {/* Plates */}
-                            <div className="flex items-center gap-[1px] z-20 shrink-0">
-                               {loadedPlates.map((p, i) => (
-                                  <div key={i} className={`flex items-center justify-center rounded-[3px] shadow-[2px_0_5px_rgba(0,0,0,0.8)] border-y border-x-2 ${plateStyles[p].height} ${plateStyles[p].width} ${plateStyles[p].color} ${plateStyles[p].border}`}>
-                                     <span className={`${plateStyles[p].labelColor} ${plateStyles[p].text} -rotate-90 block`}>{p}</span>
-                                  </div>
-                               ))}
-                            </div>
-
-                            {/* The Metal Sleeve */}
-                            <div className="absolute left-[40px] right-0 h-8 bg-gradient-to-b from-neutral-400 via-neutral-300 to-neutral-500 shadow-inner z-0 border-y border-neutral-500 rounded-r-md" />
-                         </div>
-                      ) : (
-                         <div className="text-center text-neutral-500 font-mono text-sm">AWAITING TARGET...</div>
-                      )}
-                   </div>
-
-                   {loadedPlates.length > 0 && (
-                      <div className="glass-card rounded-xl p-4">
-                         <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Load Per Sleeve</h4>
-                         <div className="flex flex-wrap gap-2">
-                            {Object.entries(plateBreakdown).sort((a,b) => b[0] - a[0]).map(([weight, count]) => (
-                               <span key={weight} className="bg-black/50 border border-white/10 px-3 py-1.5 rounded-lg text-white font-mono text-sm shadow-sm">
-                                  <span className="text-amber-400 mr-1">{count}x</span> {weight} lbs
-                               </span>
-                            ))}
-                         </div>
-                      </div>
-                   )}
-                </div>
-             </div>
-          </div>
-       );
-    }
-
-    // --- CUSTOM SVG VOLUME CHART ---
-    function VolumeChart({ data, strokeColor }) {
-      if (!data || data.length === 0) {
-        return <div className="h-20 flex items-center justify-center text-neutral-600 text-xs italic font-mono">No data</div>;
-      }
-      
-      if (data.length === 1) {
-         return (
-            <svg className="w-full h-20 overflow-visible mt-2" viewBox="0 0 100 100" preserveAspectRatio="none">
-               <circle cx="50" cy="50" r="4" fill={strokeColor} style={{filter: `drop-shadow(0 0 6px ${strokeColor})`}} />
-            </svg>
-         );
-      }
-      
-      const maxVol = Math.max(...data.map(d => d.volume));
-      const minVol = Math.min(...data.map(d => d.volume));
-      const range = maxVol - minVol || 1;
-      
-      const points = data.map((d, i) => {
-        const x = (i / (data.length - 1)) * 100;
-        const y = 100 - (((d.volume - minVol) / range) * 80 + 10);
-        return `${x},${y}`;
-      }).join(' ');
+      if (loading) return (
+        <div className="min-h-screen flex flex-col items-center justify-center text-neutral-300 bg-[#121212]">
+          <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+          <p className="font-header text-sm tracking-widest text-neutral-500">SYNCING...</p>
+        </div>
+      );
 
       return (
-        <svg className="w-full h-20 overflow-visible mt-2 drop-shadow-xl" viewBox="0 0 100 100" preserveAspectRatio="none">
-           <polyline points={points} fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{filter: `drop-shadow(0 0 4px ${strokeColor})`}} />
-           {data.map((d, i) => {
-             const x = (i / (data.length - 1)) * 100;
-             const y = 100 - (((d.volume - minVol) / range) * 80 + 10);
-             return <circle key={i} cx={x} cy={y} r="3.5" fill="#121212" stroke={strokeColor} strokeWidth="2" />
-           })}
-        </svg>
+        <div className="min-h-screen bg-neutral-950 text-neutral-100 p-2 md:p-6 pb-20 font-sans relative">
+          {view === 'dashboard' && (
+            <Dashboard workoutsDb={workoutsDb} onStart={startWorkout} getNextWorkoutId={getNextWorkoutId} savedSession={savedSession} onResume={resumeWorkout} forceRefresh={forceRefresh} appSettings={appSettings} onEditProtocol={() => setView('builder')} setShowSpreadsheet={setShowSpreadsheet} />
+          )}
+          {view === 'workout' && (
+            <ActiveWorkout users={activeUsers} selectedRoutines={selectedRoutines} workoutsDb={workoutsDb} onFinish={handleFinishWorkout} onSaveProgress={handleSaveProgress} onCancel={() => { if(!editSession) clearSavedSession(); setView('dashboard'); setActiveUsers([]); setEditSession(null); }} initialSessionData={savedSession && savedSession.users.join(',') === activeUsers.join(',') ? savedSession.sessionData : null} editSession={editSession} appSettings={appSettings} />
+          )}
+          {view === 'builder' && (
+            <RoutineBuilder appSettings={appSettings} onSave={handleSaveSettings} onCancel={() => setView('dashboard')} />
+          )}
+          {showSpreadsheet && (
+            <SpreadsheetModal workoutsDb={workoutsDb} userToShow={showSpreadsheet} onClose={() => setShowSpreadsheet(null)} onEditSession={(s) => {setShowSpreadsheet(null); startEditWorkout(s);}} appSettings={appSettings} />
+          )}
+        </div>
       );
     }
 
-    // --- SESSION (WEEKLY) ANALYTICS WIDGET ---
-    function SessionAnalytics({ user, workoutsDb, themeColor }) {
-       const weeklyData = useMemo(() => {
-          const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(a.date) - new Date(b.date));
-          const weeksMap = {};
-          
-          userWorkouts.forEach(w => {
-             const d = new Date(w.date);
-             const day = d.getDay();
-             const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-             const monday = new Date(d);
-             monday.setDate(diff);
-             monday.setHours(0,0,0,0);
-             
-             const weekKey = monday.getTime();
-             
-             let vol = 0;
-             Object.values(w.exercises).forEach(exData => {
-                const sets = Array.isArray(exData) ? exData : (exData.sets || []);
-                sets.forEach(s => vol += (parseFloat(s.weight||0) * parseInt(s.reps||0)));
-             });
-             
-             if (!weeksMap[weekKey]) {
-                weeksMap[weekKey] = { date: weekKey, volume: 0 };
-             }
-             weeksMap[weekKey].volume += vol;
-          });
-          
-          return Object.values(weeksMap).sort((a,b) => a.date - b.date);
-       }, [workoutsDb, user]);
-
-       let currentVol = 0;
-       let prevVol = 0;
-       let percentChange = 0;
-
-       if (weeklyData.length > 0) {
-          currentVol = weeklyData[weeklyData.length - 1].volume;
-          if (weeklyData.length > 1) {
-             prevVol = weeklyData[weeklyData.length - 2].volume;
-             percentChange = prevVol > 0 ? ((currentVol - prevVol) / prevVol) * 100 : 0;
-          }
-       }
-
-       return (
-          <div className="glass-card rounded-2xl p-5 mb-6">
-             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-white/50 flex items-center uppercase tracking-widest">
-                   <IconTrendingUp size={16} className="mr-2" style={{color: themeColor}} /> Volume
-                </h3>
-             </div>
-             
-             {weeklyData.length === 0 ? (
-                <div className="text-center text-white/30 text-sm font-mono py-4">NO DATA</div>
-             ) : (
-                <>
-                   <div className="flex justify-between items-end mb-2">
-                      <div>
-                         <div className="text-[10px] text-white/50 font-bold tracking-widest uppercase mb-1">This Week</div>
-                         <div className="text-3xl font-header tracking-wide text-white leading-none">{currentVol.toLocaleString()} <span className="text-sm font-sans text-white/40 tracking-normal">LBS</span></div>
-                      </div>
-                      {weeklyData.length > 1 && (
-                         <div className={`text-sm font-mono font-bold flex items-center ${percentChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%
-                         </div>
-                      )}
-                   </div>
-                   
-                   <VolumeChart data={weeklyData} strokeColor={themeColor} />
-                </>
-             )}
-          </div>
-       );
-    }
-
-    // --- ACTIVITY RINGS COMPONENT ---
-    const ActivityRings = ({ user, workoutsDb, primary, targetCals }) => {
-       const isRobby = user === 'Robby';
-       
-       const { currentCals, averageFatigue } = useMemo(() => {
-          const now = new Date().getTime();
-          const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(b.date) - new Date(a.date));
-          
-          let cals = 0;
-          let totalFatigue = 0;
-          const allMuscles = ['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves'];
-          const lastHitMap = {};
-          
-          const liftBurn = isRobby ? 450 : 300;
-          const cardioRate = isRobby ? 14 : 10; 
-
-          userWorkouts.forEach(workout => {
-             const workoutDate = new Date(workout.date).getTime();
-             const hoursElapsed = (now - workoutDate) / (1000 * 60 * 60);
-             if (hoursElapsed > 168) return;
-
-             cals += liftBurn;
-             if (workout.cardioType && workout.cardioDuration) {
-                 cals += parseFloat(workout.cardioDuration) * cardioRate;
-             }
-
-             Object.entries(workout.exercises).forEach(([exName, exData]) => {
-                const rpe = parseFloat(exData.rpe) || 7; 
-                const muscles = EXERCISE_MUSCLE_MAP[exName] || [];
-                muscles.forEach(muscle => {
-                   if (allMuscles.includes(muscle) && !lastHitMap[muscle]) {
-                      lastHitMap[muscle] = true;
-                      let baseFatigue = rpe * 10; 
-                      let currentFatigue = Math.max(0, baseFatigue * (1 - (hoursElapsed / 72)));
-                      totalFatigue += currentFatigue;
-                   }
-                });
-             });
-          });
-
-          return { 
-              currentCals: cals,
-              averageFatigue: Math.min(100, Math.round(totalFatigue / allMuscles.length))
-          };
-       }, [workoutsDb, user, isRobby]);
-       
-       const outerCircumference = 251;
-       const innerCircumference = 163;
-       
-       const cappedCals = Math.min(currentCals, targetCals); 
-       const outerOffset = outerCircumference - ((cappedCals / targetCals) * outerCircumference);
-       const innerOffset = innerCircumference - ((averageFatigue / 100) * innerCircumference);
-       
-       let fatigueColor = '#22c55e'; // Green
-       if (averageFatigue > 25) fatigueColor = '#eab308'; // Yellow
-       if (averageFatigue > 50) fatigueColor = '#f97316'; // Orange
-       if (averageFatigue > 75) fatigueColor = '#ef4444'; // Red
-
-       return (
-          <div className="flex items-center gap-4 py-2">
-            <div className="relative w-16 h-16 shrink-0">
-              <svg className="-rotate-90 w-full h-full" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke={primary} strokeWidth="8" strokeDasharray={outerCircumference} strokeDashoffset={outerOffset} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 4px ${primary})`, transition: 'stroke-dashoffset 1s ease-out'}} />
-                <circle cx="50" cy="50" r="26" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-                <circle cx="50" cy="50" r="26" fill="none" stroke={fatigueColor} strokeWidth="8" strokeDasharray={innerCircumference} strokeDashoffset={innerOffset} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 4px ${fatigueColor})`, transition: 'stroke-dashoffset 1s ease-out'}} />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <IconActivity size={14} className="text-white/60" />
-              </div>
-            </div>
-            <div className="flex flex-col justify-center">
-              <span className="font-header text-3xl leading-none text-white tracking-wide">{currentCals.toLocaleString()} <span className="text-xs text-white/40 tracking-normal font-sans">KCAL</span></span>
-              <span className="font-mono text-sm font-bold mt-1" style={{color: fatigueColor}}>{averageFatigue}% <span className="text-[10px] text-white/40 font-normal font-sans">FATIGUE</span></span>
-            </div>
-          </div>
-       );
-    };
-
-    // --- TIMELINE COMPONENT ---
-    const PPLTimeline = ({ selected, primary, routineOrder }) => {
-      return (
-        <div className="relative flex items-center justify-between w-full mt-4 mb-6 z-10 px-2">
-          <div className="absolute top-[5px] left-4 right-4 h-[2px] bg-white/10 -z-10" />
-          {routineOrder.map((item) => {
-            const isSelected = selected === item;
-            return (
-              <div key={item} className="flex flex-col items-center gap-2">
-                <div 
-                   className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${isSelected ? 'scale-125' : 'border-white/20 bg-[#121212]'}`}
-                   style={isSelected ? { backgroundColor: primary, borderColor: '#fff', boxShadow: `0 0 10px ${primary}` } : {}}
-                />
-                <span className={`text-[8px] font-bold uppercase tracking-widest transition-all text-center leading-tight ${isSelected ? 'text-white' : 'text-white/30'}`}>
-                  {item.split(' ')[0]}<br/>{item.split(' ')[1]}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      )
-    }
-
-    // --- EXCEL-STYLE WORKBOOK SPREADSHEET MODAL ---
-    function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, getActiveRoutines }) {
-       const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow), [workoutsDb, userToShow]);
-       const activeRoutines = getActiveRoutines(userToShow);
-       const routineOrder = activeRoutines.map(r => r.id);
-       
-       const routines = useMemo(() => {
-          const allRoutines = Array.from(new Set(userWorkouts.map(w => w.routineId)));
-          return allRoutines.sort((a, b) => {
-             const idxA = routineOrder.indexOf(a);
-             const idxB = routineOrder.indexOf(b);
-             return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-          });
-       }, [userWorkouts, routineOrder]);
-
-       const themeText = userToShow === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
-
-       return (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[60] p-2 sm:p-6" onClick={onClose}>
-             <div className="glass-card rounded-xl w-full max-w-[95vw] max-h-[95vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 shrink-0">
-                   <div>
-                      <h2 className="text-2xl font-header tracking-wide text-white flex items-center"><IconTable size={20} className={`mr-3 ${themeText}`}/> {userToShow}'s Log Report</h2>
-                      <p className="text-[10px] font-mono text-white/50 mt-1 uppercase tracking-widest">Click any date column header to edit</p>
-                   </div>
-                   <button onClick={onClose} className="text-white/50 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={18} /></button>
-                </div>
-                
-                <div className="overflow-auto flex-1 p-0 bg-black/20 pb-12 relative">
-                   {routines.length === 0 ? (
-                      <div className="text-center text-white/30 font-mono text-sm mt-10">NO DATA</div>
-                   ) : (
-                      routines.map(routineName => {
-                         const sessions = userWorkouts
-                            .filter(w => w.routineId === routineName)
-                            .sort((a, b) => new Date(a.date) - new Date(b.date)); 
-                         
-                         const dates = sessions.map(s => ({ 
-                            id: s.id, 
-                            dateStr: new Date(s.date).toLocaleDateString(undefined, {month: '2-digit', day: '2-digit', year: '2-digit'}),
-                            session: s 
-                         }));
-                         
-                         const exerciseSet = new Set();
-                         sessions.forEach(s => Object.keys(s.exercises).forEach(e => exerciseSet.add(e)));
-                         let exercises = Array.from(exerciseSet);
-
-                         const routineDef = activeRoutines.find(r => r.id === routineName);
-                         if (routineDef) {
-                            const exOrder = {};
-                            routineDef.exercises.forEach((ex, i) => exOrder[ex.name] = i);
-                            CANDICE_CORE.exercises.forEach((ex, i) => exOrder[ex.name] = i + 100); 
-                            exercises.sort((a, b) => (exOrder[a] ?? 999) - (exOrder[b] ?? 999));
-                         }
-
-                         const rows = exercises.map(exName => {
-                            const cells = sessions.map(s => {
-                               const exData = s.exercises[exName];
-                               const sets = Array.isArray(exData) ? exData : (exData?.sets || []);
-
-                               if (!sets || sets.length === 0) return '-';
-                               const allSame = sets.every(set => set.weight === sets[0].weight && set.reps === sets[0].reps);
-                               if (allSame) return `${sets.length}s: ${sets[0].weight}x${sets[0].reps}`;
-                               return sets.map(set => `${set.weight}x${set.reps}`).join(', ');
-                            });
-                            return { exercise: exName, cells, isCardio: false };
-                         });
-
-                         const hasCardio = sessions.some(s => s.cardioType && s.cardioDuration);
-                         if (hasCardio) {
-                             const cardioCells = sessions.map(s => {
-                                 if (s.cardioType && s.cardioDuration) return `${s.cardioType} (${s.cardioDuration}m)`;
-                                 return '-';
-                             });
-                             rows.push({ exercise: 'CARDIO', cells: cardioCells, isCardio: true });
-                         }
-
-                         return (
-                            <div key={routineName} className="mb-8">
-                               <div className="bg-[#0a0a0a] p-3 border-y border-white/10 sticky top-0 z-40 shadow-md">
-                                  <h3 className="text-lg font-header text-white tracking-widest">{routineName}</h3>
-                               </div>
-                               <div className="w-full">
-                                  <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
-                                     <thead>
-                                        <tr>
-                                           <th className="px-3 py-2 font-bold text-white/60 text-[9px] uppercase tracking-widest border border-white/10 sticky top-[45px] left-0 bg-[#111] z-30 shadow-[2px_2px_5px_rgba(0,0,0,0.5)]">Exercise</th>
-                                           {dates.map(d => (
-                                              <th key={d.id} className="px-3 py-2 font-bold text-white/60 text-[10px] uppercase tracking-widest border border-white/10 text-center sticky top-[45px] bg-[#151515] z-20 shadow-[0_2px_5px_rgba(0,0,0,0.5)] cursor-pointer hover:bg-[#222]" onClick={() => onEditSession(d.session)}>
-                                                 <div className="flex items-center justify-center gap-1 group">
-                                                    <span className="font-mono text-white/80">{d.dateStr}</span>
-                                                    <IconEdit size={10} className="opacity-0 group-hover:opacity-100 text-white/50 transition-opacity"/>
-                                                 </div>
-                                              </th>
-                                           ))}
-                                        </tr>
-                                     </thead>
-                                     <tbody>
-                                        {rows.map((row, idx) => (
-                                           <tr key={idx} className={`even:bg-white/[0.02] hover:bg-white/10 transition-colors group ${row.isCardio ? 'border-t-2 border-white/20 bg-white/5' : ''}`}>
-                                              <td className={`px-3 py-2.5 font-medium border border-white/10 sticky left-0 bg-[#151515] group-hover:bg-[#222] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.5)] max-w-[180px] truncate ${row.isCardio ? themeText : 'text-white/90'}`} title={row.exercise}>
-                                                 {row.exercise}
-                                              </td>
-                                              {row.cells.map((cell, cIdx) => (
-                                                 <td key={cIdx} className={`px-3 py-2.5 font-mono text-[10px] border border-white/10 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/50 group-hover:text-white'}`}>
-                                                    {cell}
-                                                 </td>
-                                              ))}
-                                           </tr>
-                                        ))}
-                                     </tbody>
-                                  </table>
-                               </div>
-                            </div>
-                         );
-                      })
-                   )}
-                </div>
-             </div>
-          </div>
-       );
-    }
-
-    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, onEditSession, onTogglePlateCalc, onToggleHeatmap, forceRefresh, getActiveRoutines, onEditProtocol }) {
-      const robbyRoutines = getActiveRoutines('Robby');
-      const candiceRoutines = getActiveRoutines('Candice');
-
+    // --- DASHBOARD COMPONENT ---
+    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, forceRefresh, appSettings, onEditProtocol, setShowSpreadsheet }) {
       const [robbyScheduled, setRobbyScheduled] = useState(getNextWorkoutId('Robby'));
       const [candiceScheduled, setCandiceScheduled] = useState(getNextWorkoutId('Candice'));
       const [robbyRoutine, setRobbyRoutine] = useState(robbyScheduled);
       const [candiceRoutine, setCandiceRoutine] = useState(candiceScheduled);
-      const [showSpreadsheet, setShowSpreadsheet] = useState(null); 
-      const [selectedHistory, setSelectedHistory] = useState(null);
 
-      useEffect(() => { 
-         const rNext = getNextWorkoutId('Robby');
-         setRobbyScheduled(rNext);
-         setRobbyRoutine(rNext);
-      }, [workoutsDb, robbyRoutines]);
-      
-      useEffect(() => { 
-         const cNext = getNextWorkoutId('Candice');
-         setCandiceScheduled(cNext);
-         setCandiceRoutine(cNext);
-      }, [workoutsDb, candiceRoutines]);
+      useEffect(() => { setRobbyScheduled(getNextWorkoutId('Robby')); setRobbyRoutine(getNextWorkoutId('Robby')); }, [workoutsDb, appSettings]);
+      useEffect(() => { setCandiceScheduled(getNextWorkoutId('Candice')); setCandiceRoutine(getNextWorkoutId('Candice')); }, [workoutsDb, appSettings]);
 
       return (
-        <div className="max-w-[1400px] mx-auto">
-          
-          {/* Top Navbar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 pb-4 border-b border-white/10">
             <div>
                <div className="flex items-center gap-3 mb-1">
-                   <h1 className="font-header text-4xl tracking-widest text-white leading-none drop-shadow-md">COMMAND CENTER</h1>
-                   <button onClick={forceRefresh} className="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest btn-press shadow-lg shadow-red-500/10 hover:bg-red-500/30 transition-all">
-                      RESET CACHE
-                   </button>
+                   <h1 className="font-header text-3xl tracking-widest text-white leading-none">COMMAND CENTER</h1>
+                   <button onClick={forceRefresh} className="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[8px] font-bold tracking-widest btn-press">RESET CACHE</button>
                </div>
-               <p className="text-emerald-400 text-xs font-mono tracking-widest flex items-center">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-2"></span> CLOUD SYNC V3.0
+               <p className="text-emerald-400 text-[10px] font-mono tracking-widest flex items-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> CLOUD SYNC V4.0
                </p>
             </div>
-            <div className="flex flex-wrap gap-3">
-               <button 
-                  onClick={onEditProtocol} 
-                  className="glass-card hover:bg-white/10 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center shadow-lg btn-press"
-               >
-                  <IconSettings size={18} className="mr-2 text-white/80" /> Protocol
-               </button>
-               <button 
-                  onClick={onTogglePlateCalc} 
-                  className="glass-card hover:bg-white/10 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center shadow-lg btn-press"
-               >
-                  <IconCalculator size={18} className="mr-2 text-white/80" /> Plates
-               </button>
-               <button 
-                  onClick={() => setShowSpreadsheet('Robby')} 
-                  className="glass-card hover:bg-white/10 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center btn-press"
-               >
-                  <IconTable size={18} className="mr-2 text-[var(--robby-primary)]" /> Robby
-               </button>
-               <button 
-                  onClick={() => setShowSpreadsheet('Candice')} 
-                  className="glass-card hover:bg-white/10 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center btn-press"
-               >
-                  <IconTable size={18} className="mr-2 text-[var(--candice-primary)]" /> Candice
-               </button>
-               <button 
-                  onClick={() => onStart(['Robby', 'Candice'], { Robby: robbyRoutine, Candice: candiceRoutine })} 
-                  className="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center shadow-[0_0_15px_rgba(255,255,255,0.3)] ml-auto md:ml-2 btn-press"
-               >
-                  <IconUsers size={18} className="mr-2" /> Dual Sync
-               </button>
+            <div className="flex flex-wrap gap-2">
+               <button onClick={onEditProtocol} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconSettings size={12} className="mr-1 text-white/80" /> Protocol</button>
+               <button onClick={() => setShowSpreadsheet('Robby')} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconTable size={12} className="mr-1 text-[var(--robby-primary)]" /> Robby</button>
+               <button onClick={() => setShowSpreadsheet('Candice')} className="glass-card hover:bg-white/10 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-all flex items-center btn-press"><IconTable size={12} className="mr-1 text-[var(--candice-primary)]" /> Candice</button>
+               <button onClick={() => onStart(['Robby', 'Candice'], { Robby: robbyRoutine, Candice: candiceRoutine })} className="bg-white text-black px-4 py-1.5 rounded text-xs font-bold transition-all flex items-center shadow-[0_0_10px_rgba(255,255,255,0.3)] btn-press"><IconUsers size={14} className="mr-1.5" /> Dual Sync</button>
             </div>
           </div>
 
-          {/* Daily Quote Banner */}
           <DailyQuote />
 
-          {/* Split Screen Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            
-            {/* --- ROBBY COLUMN --- */}
-            <div className="flex flex-col gap-6">
-               {/* Header Graphic (Masculine lifting) */}
-               <div className="relative rounded-2xl overflow-hidden h-48 shadow-2xl glass-card glow-robby" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1470&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center 30%' }}>
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent"></div>
-                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                     <h2 className="text-5xl font-header text-white tracking-widest flex items-center leading-none">
-                        Robby
-                     </h2>
-                     <p className="text-[var(--robby-primary)] font-mono font-bold text-xs mt-1 tracking-widest">HYPERTROPHY PHASE</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {/* Robby Block */}
+            <div className="glass-card glow-robby rounded-2xl overflow-hidden flex flex-col border border-white/5">
+               <div className="h-24 relative overflow-hidden shrink-0">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity" style={{ backgroundImage: `url('${getDailyImage('Robby')}')` }}></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent"></div>
+                  <div className="absolute bottom-2 left-4"><h2 className="text-3xl font-header text-white tracking-widest leading-none drop-shadow-md">Robby</h2></div>
+               </div>
+               <div className="p-4 flex-1 flex flex-col">
+                  <div className="flex justify-between items-end mb-2">
+                     <label className="text-[9px] text-white/50 font-bold tracking-widest uppercase">Sequence</label>
                   </div>
-               </div>
-
-               {/* Quick Links Row */}
-               <div className="flex gap-4">
-                  <button onClick={() => onToggleHeatmap('Robby')} className="flex-1 glass-card hover:bg-white/5 rounded-xl py-3 text-sm font-bold text-[var(--robby-primary)] transition-colors flex items-center justify-center btn-press">
-                     <IconActivity size={18} className="mr-2" /> Scan Recovery Map
-                  </button>
-               </div>
-
-               {/* Routine Selector & Start */}
-               <div className="glass-card glow-robby rounded-2xl p-6">
-                 
-                 {/* Visual Timelines & Macros */}
-                 <div className="flex flex-col mb-6">
-                    <ActivityRings user="Robby" workoutsDb={workoutsDb} primary="var(--robby-primary)" targetCals={2500} />
-                    <PPLTimeline selected={robbyRoutine} primary="var(--robby-primary)" routineOrder={robbyRoutines.map(r=>r.id)} />
-                 </div>
-
-                 <div className="mb-6 relative z-10">
-                    <div className="flex justify-between items-end mb-2">
-                       <label className="text-[10px] text-white/50 font-bold tracking-widest uppercase block">Selected Sequence</label>
-                       {robbyRoutine === robbyScheduled 
-                          ? <span className="text-[9px] text-[var(--robby-primary)] font-bold uppercase tracking-widest">Scheduled</span>
-                          : <span className="text-[9px] text-amber-400 font-bold uppercase tracking-widest">Manual</span>
-                       }
-                    </div>
-                    <select 
-                       value={robbyRoutine} 
-                       onChange={e => setRobbyRoutine(e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xl font-header tracking-widest text-[var(--robby-primary)] outline-none focus:border-[var(--robby-primary)] appearance-none shadow-inner"
-                    >
-                       {robbyRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
-                    </select>
-                 </div>
-                 <button 
-                   onClick={() => onStart(['Robby'], { Robby: robbyRoutine })} 
-                   className="w-full bg-[var(--robby-primary)] text-black py-4 rounded-xl font-header font-bold text-2xl tracking-widest shadow-[0_0_15px_var(--robby-glow)] btn-press"
-                 >
-                   INITIATE SESSION
-                 </button>
+                  <select value={robbyRoutine} onChange={e => setRobbyRoutine(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm font-bold tracking-widest text-[var(--robby-primary)] outline-none shadow-inner mb-4">
+                     {(appSettings.Robby || DEFAULT_ROUTINES).map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
+                  </select>
+                  <button onClick={() => onStart(['Robby'], { Robby: robbyRoutine })} className="mt-auto w-full bg-[var(--robby-primary)] text-black py-2.5 rounded-lg font-bold text-xs tracking-widest shadow-[0_0_10px_var(--robby-glow)] btn-press">INITIATE SESSION</button>
                </div>
             </div>
 
-            {/* --- CANDICE COLUMN --- */}
-            <div className="flex flex-col gap-6">
-               {/* Header Graphic (Feminine lifting/strength) */}
-               <div className="relative rounded-2xl overflow-hidden h-48 shadow-2xl glass-card glow-candice" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1470&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center 40%' }}>
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent"></div>
-                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                     <h2 className="text-5xl font-header text-white tracking-widest flex items-center leading-none">
-                        Candice
-                     </h2>
-                     <p className="text-[var(--candice-primary)] font-mono font-bold text-xs mt-1 tracking-widest">RECOMP & CORE</p>
+            {/* Candice Block */}
+            <div className="glass-card glow-candice rounded-2xl overflow-hidden flex flex-col border border-white/5">
+               <div className="h-24 relative overflow-hidden shrink-0">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity" style={{ backgroundImage: `url('${getDailyImage('Candice')}')` }}></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent"></div>
+                  <div className="absolute bottom-2 left-4"><h2 className="text-3xl font-header text-white tracking-widest leading-none drop-shadow-md">Candice</h2></div>
+               </div>
+               <div className="p-4 flex-1 flex flex-col">
+                  <div className="flex justify-between items-end mb-2">
+                     <label className="text-[9px] text-white/50 font-bold tracking-widest uppercase">Sequence</label>
                   </div>
+                  <select value={candiceRoutine} onChange={e => setCandiceRoutine(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm font-bold tracking-widest text-[var(--candice-primary)] outline-none shadow-inner mb-4">
+                     {(appSettings.Candice || DEFAULT_ROUTINES).map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
+                  </select>
+                  <button onClick={() => onStart(['Candice'], { Candice: candiceRoutine })} className="mt-auto w-full bg-[var(--candice-primary)] text-black py-2.5 rounded-lg font-bold text-xs tracking-widest shadow-[0_0_10px_var(--candice-glow)] btn-press">INITIATE SESSION</button>
                </div>
-
-               {/* Quick Links Row */}
-               <div className="flex gap-4">
-                  <button onClick={() => onToggleHeatmap('Candice')} className="flex-1 glass-card hover:bg-white/5 rounded-xl py-3 text-sm font-bold text-[var(--candice-primary)] transition-colors flex items-center justify-center btn-press">
-                     <IconActivity size={18} className="mr-2" /> Scan Recovery Map
-                  </button>
-               </div>
-
-               {/* Routine Selector & Start */}
-               <div className="glass-card glow-candice rounded-2xl p-6">
-                 
-                 {/* Visual Timelines & Macros */}
-                 <div className="flex flex-col mb-6">
-                    <ActivityRings user="Candice" workoutsDb={workoutsDb} primary="var(--candice-primary)" targetCals={1500} />
-                    <PPLTimeline selected={candiceRoutine} primary="var(--candice-primary)" routineOrder={candiceRoutines.map(r=>r.id)} />
-                 </div>
-
-                 <div className="mb-6 relative z-10">
-                    <div className="flex justify-between items-end mb-2">
-                       <label className="text-[10px] text-white/50 font-bold tracking-widest uppercase block">Selected Sequence</label>
-                       {candiceRoutine === candiceScheduled 
-                          ? <span className="text-[9px] text-[var(--candice-primary)] font-bold uppercase tracking-widest">Scheduled</span>
-                          : <span className="text-[9px] text-amber-400 font-bold uppercase tracking-widest">Manual</span>
-                       }
-                    </div>
-                    <select 
-                       value={candiceRoutine} 
-                       onChange={e => setCandiceRoutine(e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xl font-header tracking-widest text-[var(--candice-primary)] outline-none focus:border-[var(--candice-primary)] appearance-none shadow-inner"
-                    >
-                       {candiceRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
-                    </select>
-                 </div>
-                 <button 
-                   onClick={() => onStart(['Candice'], { Candice: candiceRoutine })} 
-                   className="w-full bg-[var(--candice-primary)] text-black py-4 rounded-xl font-header font-bold text-2xl tracking-widest shadow-[0_0_15px_var(--candice-glow)] btn-press"
-                 >
-                   INITIATE SESSION
-                 </button>
-               </div>
-            </div>
-
-          </div>
-
-          {/* Quick Recent Log */}
-          <div className="mt-8 pt-8 border-t border-white/10">
-            <h3 className="font-header text-2xl tracking-widest text-white/80 mb-4 flex items-center"><IconHistory size={20} className="mr-2" /> TELEMETRY LOG</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-              {workoutsDb.slice(0, 4).map((w, i) => {
-                 const isRobby = w.user === 'Robby';
-                 const themeText = isRobby ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
-                 const glowClass = isRobby ? 'hover:shadow-[0_0_15px_var(--robby-glow)] hover:border-[var(--robby-primary)]' : 'hover:shadow-[0_0_15px_var(--candice-glow)] hover:border-[var(--candice-primary)]';
-
-                 return (
-                   <button 
-                     key={w.id} 
-                     onClick={() => setSelectedHistory(w)}
-                     className={`glass-card rounded-xl p-4 flex flex-col justify-start text-left transition-all h-[260px] group btn-press ${glowClass}`}
-                   >
-                     <div className="flex justify-between items-start mb-2 w-full">
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 ${themeText}`}>{w.user}</span>
-                        <span className="text-[10px] font-mono text-white/40">{new Date(w.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                     </div>
-                     <p className="font-header text-2xl tracking-widest text-white mb-3 leading-none">{w.routineId}</p>
-                     
-                     <div className="flex-1 overflow-y-auto w-full space-y-1.5 pr-1 text-xs">
-                        {Object.entries(w.exercises).map(([exName, exData]) => {
-                           const sets = Array.isArray(exData) ? exData : (exData.sets || []);
-                           const allSame = sets.every(s => s.weight === sets[0].weight && s.reps === sets[0].reps);
-                           const desc = allSame && sets.length > 0 ? `${sets.length}s: ${sets[0].weight}x${sets[0].reps}` : sets.map(s => `${s.weight}x${s.reps}`).join(', ');
-                           return (
-                              <div key={exName} className="flex justify-between items-start gap-2 border-b border-white/5 pb-1">
-                                 <span className="text-white/60 truncate max-w-[60%]">{exName}</span>
-                                 <span className="text-white/40 font-mono whitespace-nowrap text-[10px]">{desc}</span>
-                              </div>
-                           );
-                        })}
-                        {w.cardioType && w.cardioDuration && (
-                           <div className="flex justify-between items-start gap-2 border-b border-white/5 pb-1 pt-1">
-                              <span className={`${themeText} truncate max-w-[60%] flex items-center`}><IconActivity size={10} className="mr-1"/> {w.cardioType}</span>
-                              <span className="text-white/40 font-mono whitespace-nowrap text-[10px]">{w.cardioDuration} min</span>
-                           </div>
-                        )}
-                     </div>
-                     
-                     <div className="text-[10px] font-bold uppercase tracking-widest text-white/30 w-full flex justify-between items-center mt-3 pt-3 border-t border-white/5">
-                        <span>View Data</span>
-                        <span className="group-hover:text-white transition-colors">&rarr;</span>
-                     </div>
-                   </button>
-                 )
-              })}
-              {workoutsDb.length === 0 && <div className="p-8 text-white/30 font-mono text-sm italic col-span-full">AWAITING TELEMETRY...</div>}
             </div>
           </div>
-
-          {/* Modals remain mostly identical in layout but adopt glass-card classes */}
-          {showSpreadsheet && (
-              <SpreadsheetModal 
-                  workoutsDb={workoutsDb} 
-                  userToShow={showSpreadsheet} 
-                  onClose={() => setShowSpreadsheet(null)} 
-                  onEditSession={(session) => {
-                      setShowSpreadsheet(null);
-                      onEditSession(session);
-                  }}
-                  getActiveRoutines={getActiveRoutines}
-              />
-          )}
-          
-          {selectedHistory && (
-             <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[70] p-4" onClick={() => setSelectedHistory(null)}>
-                <div className="glass-card rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-                   <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
-                      <div>
-                         <div className="flex items-center gap-2 mb-1">
-                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 ${selectedHistory.user === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]'}`}>
-                               {selectedHistory.user}
-                            </span>
-                            <h3 className="text-2xl font-header tracking-widest text-white leading-none mt-1">{selectedHistory.routineId}</h3>
-                         </div>
-                         <p className="text-xs font-mono text-white/40">{new Date(selectedHistory.date).toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                      </div>
-                      <button onClick={() => setSelectedHistory(null)} className="text-white/50 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={20} /></button>
-                   </div>
-                   <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
-                      {Object.entries(selectedHistory.exercises).map(([exName, exData]) => {
-                         const sets = Array.isArray(exData) ? exData : (exData.sets || []);
-                         const note = Array.isArray(exData) ? '' : (exData.note || '');
-                         const recW = Array.isArray(exData) ? '' : (exData.recWeight || '');
-                         const recR = Array.isArray(exData) ? '' : (exData.recReps || '');
-                         const rpe = Array.isArray(exData) ? '' : (exData.rpe || '');
-
-                         return (
-                            <div key={exName} className="glass-card bg-black/20 rounded-xl p-4 border border-white/5">
-                               <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-bold text-white/90 text-sm">{exName}</h4>
-                                  {rpe && <span className="bg-black/50 text-white/50 text-[10px] px-2 py-0.5 rounded font-mono border border-white/10">RPE: {rpe}</span>}
-                               </div>
-                               
-                               <div className="flex flex-wrap gap-2 mb-3">
-                                  {sets.map((set, i) => (
-                                     <div key={i} className="bg-black/40 px-3 py-1.5 rounded-lg text-white/60 font-mono text-xs border border-white/5">
-                                        Set {i+1}: <span className="text-white font-bold text-sm ml-1">{set.weight}</span> <span className="text-[10px]">LBS</span> × <span className="text-white font-bold text-sm">{set.reps}</span>
-                                     </div>
-                                  ))}
-                               </div>
-
-                               {(note || recW || recR) && (
-                                  <div className="bg-black/30 rounded-lg p-3 border border-white/5 space-y-2 mt-2">
-                                      {note && (
-                                         <div className="text-xs text-white/60">
-                                            <span className="font-bold text-white/40 uppercase tracking-widest text-[9px] block mb-0.5">Note:</span>
-                                            {note}
-                                         </div>
-                                      )}
-                                      {(recW || recR) && (
-                                         <div className="text-xs text-amber-400/90 font-mono">
-                                            <span className="font-bold text-amber-500/50 uppercase tracking-widest text-[9px] block mb-0.5 font-sans">Next Target:</span>
-                                            {recW || '-'} lbs × {recR || '-'} reps
-                                         </div>
-                                      )}
-                                  </div>
-                               )}
-                            </div>
-                         );
-                      })}
-
-                      {/* Display Cardio if Logged */}
-                      {selectedHistory.cardioType && selectedHistory.cardioDuration && (
-                          <div className="glass-card bg-black/20 rounded-xl p-4 border border-white/5 mt-4">
-                              <h4 className="font-bold text-white/90 text-sm mb-2 flex items-center"><IconActivity size={16} className="mr-2"/> Post-Session Cardio</h4>
-                              <div className="text-white/60 font-mono text-sm border-l-2 pl-3 border-[var(--candice-primary)]" style={{ borderColor: selectedHistory.user === 'Robby' ? 'var(--robby-primary)' : 'var(--candice-primary)' }}>
-                                  {selectedHistory.cardioType} <span className="text-white mx-1">—</span> {selectedHistory.cardioDuration} minutes
-                              </div>
-                          </div>
-                      )}
-                   </div>
-                </div>
-             </div>
-          )}
         </div>
       );
     }
 
-    function ActiveWorkout({ users, selectedRoutines, workoutsDb, onFinish, onSaveProgress, onCancel, initialSessionData, editSession, onTogglePlateCalc, getActiveRoutines }) {
+    // --- ACTIVE WORKOUT (COMPACT & DUAL SCROLL) ---
+    function ActiveWorkout({ users, selectedRoutines, workoutsDb, onFinish, onSaveProgress, onCancel, initialSessionData, editSession, appSettings }) {
       const [sessionData, setSessionData] = useState(() => {
         if (initialSessionData && !editSession) return initialSessionData;
-
-        const initialState = {};
+        const init = {};
         users.forEach(username => {
-          const routineId = selectedRoutines[username];
-          const activeRoutines = getActiveRoutines(username);
-          const routine = activeRoutines.find(r => r.id === routineId);
-          const exercisesState = {};
+          const rId = selectedRoutines[username];
+          const routines = appSettings[username] || DEFAULT_ROUTINES;
+          const r = routines.find(x => x.id === rId) || routines[0];
+          const exState = {};
           
-          const userHistory = workoutsDb.filter(w => w.user === username && w.routineId === routineId).sort((a,b) => new Date(b.date) - new Date(a.date));
-          const lastSession = userHistory.length > 0 ? userHistory[0] : null;
-
-          const setupEx = (ex, isCore) => {
-             if (editSession && editSession.user === username) {
-                 const exData = editSession.exercises[ex.name];
-                 if (exData) {
-                     const sets = Array.isArray(exData) ? exData : (exData.sets || []);
-                     exercisesState[ex.name] = { 
-                         weight: sets[0]?.weight || '', 
-                         reps: sets[0]?.reps || '', 
-                         rpe: exData.rpe || '',
-                         targetSets: sets.length || ex.targetSets, 
-                         note: exData.note || '', 
-                         recWeight: exData.recWeight || '', 
-                         recReps: exData.recReps || '', 
-                         pastRecWeight: '', 
-                         pastRecReps: '' 
-                     };
-                     return;
-                 }
-             }
-
-             let prevNote = '';
-             let pastRecWeight = '';
-             let pastRecReps = '';
-
-             if (lastSession && lastSession.exercises[ex.name]) {
-                 const prevData = lastSession.exercises[ex.name];
-                 if (!Array.isArray(prevData)) {
-                     prevNote = prevData.note || '';
-                     pastRecWeight = prevData.recWeight || '';
-                     pastRecReps = prevData.recReps || '';
-                 }
-             }
-
-             exercisesState[ex.name] = { 
-                 weight: isCore ? 'BW' : '', 
-                 reps: '', 
-                 rpe: '',
-                 targetSets: ex.targetSets, 
-                 note: prevNote, 
-                 recWeight: '', 
-                 recReps: '', 
-                 pastRecWeight, 
-                 pastRecReps 
-             };
+          const getPrev = (name) => {
+             if(editSession && editSession.user === username && editSession.exercises[name]) return editSession.exercises[name];
+             const history = workoutsDb.filter(w => w.user === username).sort((a,b)=>new Date(b.date)-new Date(a.date));
+             for(let h of history) if(h.exercises[name]) return h.exercises[name];
+             return null;
           };
 
-          routine.exercises.forEach(ex => setupEx(ex, false));
+          r.exercises.forEach(ex => {
+             const prev = getPrev(ex.name);
+             const sets = prev && Array.isArray(prev) ? prev : Array(ex.targetSets).fill({weight:'', reps:''});
+             exState[ex.name] = { sets, targetSets: ex.targetSets, notes: ex.notes, recWeight: '', recReps: '' };
+          });
 
-          if (username === 'Candice') {
-             CANDICE_CORE.exercises.forEach(ex => setupEx(ex, true));
+          if (username === 'Candice' && appSettings.CandiceCore) {
+             appSettings.CandiceCore.exercises.forEach(ex => {
+                const prev = getPrev(ex.name);
+                const sets = prev && Array.isArray(prev) ? prev : Array(ex.targetSets).fill({weight:'BW', reps:''});
+                exState[ex.name] = { sets, targetSets: ex.targetSets, notes: ex.notes, isCore: true };
+             });
           }
-
-          initialState[username] = { 
-             routineId, 
-             exercises: exercisesState,
-             cardioType: editSession?.cardioType || '',
-             cardioDuration: editSession?.cardioDuration || ''
-          };
+          init[username] = { routineId: rId, exercises: exState, cardioType: editSession?.cardioType||'', cardioDuration: editSession?.cardioDuration||'' };
         });
-        return initialState;
+        return init;
       });
 
-      const [enlargedImage, setEnlargedImage] = useState(null);
-
-      const updateExercise = (username, exerciseName, field, value) => {
-        setSessionData(prev => {
-          const updated = { ...prev };
-          updated[username].exercises[exerciseName][field] = value;
-          return updated;
-        });
+      const updateSet = (user, exName, setIdx, field, val) => {
+         setSessionData(p => {
+            const upd = {...p};
+            upd[user].exercises[exName].sets[setIdx][field] = val;
+            return upd;
+         });
+      };
+      
+      const submit = () => {
+         const payloads = users.map(u => {
+            const cleans = {};
+            Object.entries(sessionData[u].exercises).forEach(([n, d]) => {
+               const valids = d.sets.filter(s => s.weight!=='' && s.reps!=='');
+               if(valids.length > 0) cleans[n] = valids;
+            });
+            return { user: u, routineId: sessionData[u].routineId, exercises: cleans, cardioType: sessionData[u].cardioType, cardioDuration: sessionData[u].cardioDuration };
+         });
+         onFinish(payloads);
       };
 
-      const handleSave = () => {
-         onSaveProgress(users, sessionData);
-      };
-
-      const submitWorkout = () => {
-        const payloads = users.map(username => {
-          const cleanedExercises = {};
-          Object.entries(sessionData[username].exercises).forEach(([exName, exData]) => {
-            if (exData.weight !== '' && exData.reps !== '') {
-               cleanedExercises[exName] = {
-                  sets: Array(exData.targetSets).fill({ weight: exData.weight, reps: exData.reps }),
-                  rpe: exData.rpe,
-                  note: exData.note,
-                  recWeight: exData.recWeight,
-                  recReps: exData.recReps
-               };
-            }
-          });
-          return { 
-             user: username, 
-             routineId: sessionData[username].routineId, 
-             exercises: cleanedExercises,
-             cardioType: sessionData[username].cardioType,
-             cardioDuration: sessionData[username].cardioDuration
-          };
-        });
-        
-        const hasData = payloads.some(p => Object.keys(p.exercises).length > 0 || (p.cardioType && p.cardioDuration));
-        if (hasData) onFinish(payloads);
-        else onCancel(); 
-      };
+      const isDual = users.length === 2;
 
       return (
-        <div className="max-w-[1600px] mx-auto relative">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sticky top-0 bg-[#121212]/90 backdrop-blur-md z-50 py-3 border-b border-white/5">
-            <button onClick={onCancel} className="text-white/40 hover:text-red-400 transition-colors text-sm font-bold uppercase tracking-widest text-left btn-press">
-               {editSession ? '< Cancel Edit' : '< Abort'}
-            </button>
-            <div className="flex gap-3 w-full sm:w-auto">
-              <button 
-                 onClick={onTogglePlateCalc} 
-                 className="flex-1 sm:flex-none glass-card hover:bg-white/10 text-white px-3 py-2 rounded-lg font-bold transition-all flex items-center justify-center text-xs sm:text-sm btn-press"
-              >
-                 <IconCalculator size={16} className="mr-2 text-amber-400" /> Plates
-              </button>
-              {!editSession && (
-                 <button onClick={handleSave} className="flex-1 sm:flex-none glass-card hover:bg-white/10 text-white px-3 py-2 rounded-lg font-bold transition-all flex items-center justify-center text-xs sm:text-sm btn-press">
-                   <IconSave size={16} className="mr-2 text-white/50" /> Pause
-                 </button>
-              )}
-              {editSession ? (
-                 <button onClick={submitWorkout} className="flex-1 sm:flex-none bg-white text-black px-6 py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all flex items-center justify-center text-xs sm:text-sm btn-press">
-                   <IconEdit size={16} className="mr-2" /> Override Entry
-                 </button>
-              ) : (
-                 <button onClick={submitWorkout} className="flex-1 sm:flex-none bg-white text-black px-6 py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all flex items-center justify-center text-xs sm:text-sm btn-press">
-                   <IconCheck size={16} className="mr-2" /> Log Telemetry
-                 </button>
-              )}
+         <div className={`w-full max-w-[1600px] mx-auto p-1 md:p-2 ${isDual ? 'h-[95vh] flex flex-col' : 'pb-24'}`}>
+            <div className="flex items-center justify-between mb-2 shrink-0 px-2 bg-black/50 p-2 rounded-lg border border-white/5">
+               <button onClick={onCancel} className="text-white/40 hover:text-red-400 text-[10px] font-bold uppercase tracking-widest btn-press">&lt; Abort</button>
+               <div className="flex gap-2">
+                  {!editSession && <button onClick={()=>onSaveProgress(users, sessionData)} className="bg-white/10 text-white/80 px-3 py-1 rounded text-[10px] font-bold btn-press">Pause</button>}
+                  <button onClick={submit} className="bg-white text-black px-4 py-1 rounded text-xs font-bold shadow-[0_0_10px_rgba(255,255,255,0.3)] btn-press">Log Session</button>
+               </div>
             </div>
-          </div>
 
-          <div className={`grid grid-cols-1 ${users.length === 2 ? 'lg:grid-cols-2 gap-4 h-[calc(100vh-140px)]' : 'max-w-2xl mx-auto'} items-start`}>
-            {users.map(username => {
-              const routineId = sessionData[username].routineId;
-              const activeRoutines = getActiveRoutines(username);
-              const routine = activeRoutines.find(r => r.id === routineId);
-              const theme = username === 'Robby' 
-                ? { primary: 'var(--robby-primary)', glowClass: 'glow-robby', textClass: 'text-[var(--robby-primary)]', focusRing: 'focus:border-[var(--robby-primary)] focus:ring-[var(--robby-primary)]' }
-                : { primary: 'var(--candice-primary)', glowClass: 'glow-candice', textClass: 'text-[var(--candice-primary)]', focusRing: 'focus:border-[var(--candice-primary)] focus:ring-[var(--candice-primary)]' };
+            <div className={`grid grid-cols-1 ${isDual ? 'md:grid-cols-2 gap-2 h-full min-h-0' : 'max-w-2xl mx-auto gap-4'} items-start`}>
+               {users.map(u => {
+                  const rId = sessionData[u].routineId;
+                  const routines = appSettings[u] || DEFAULT_ROUTINES;
+                  const routine = routines.find(r => r.id === rId) || routines[0];
+                  const theme = u === 'Robby' ? { color: 'var(--robby-primary)', border: 'border-[var(--robby-primary)]' } : { color: 'var(--candice-primary)', border: 'border-[var(--candice-primary)]' };
 
-              return (
-                <div key={username} className={`glass-card rounded-2xl overflow-hidden flex flex-col shadow-2xl ${theme.glowClass} ${users.length === 2 ? 'h-full' : ''}`}>
-                  <div className="p-3 md:p-4 border-b border-white/10 relative overflow-hidden bg-black/40 shrink-0">
-                    <div className="flex items-center gap-3 relative z-10 mb-1">
-                       <h2 className="text-2xl md:text-3xl font-header tracking-widest text-white leading-none">{username}</h2>
-                       {editSession && <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border border-amber-500/30">Editing</span>}
-                    </div>
-                    <div className={`${theme.textClass} font-mono font-bold text-[10px] tracking-widest relative z-10`}>{routine.id} SEQUENCE</div>
-                  </div>
-
-                  <div className="p-2 md:p-3 space-y-3 bg-black/20 flex-1 overflow-y-auto">
-                    {routine.exercises.map((exercise, index) => (
-                      <ExerciseBlock 
-                          key={exercise.name} 
-                          username={username} 
-                          exercise={exercise} 
-                          state={sessionData[username].exercises[exercise.name]} 
-                          workoutsDb={workoutsDb} 
-                          updateExercise={updateExercise} 
-                          theme={theme} 
-                          number={index + 1} 
-                          editSessionId={editSession?.id} 
-                          onOpenImage={setEnlargedImage}
-                      />
-                    ))}
-
-                    {username === 'Candice' && (
-                      <div className="mt-4 border-t border-white/10 pt-4">
-                        <div className="mb-3 flex items-center">
-                          <div className="bg-[var(--candice-primary)]/20 p-1.5 rounded-lg mr-2"><IconCheckCircle size={16} className="text-[var(--candice-primary)]" /></div>
-                          <div>
-                            <h3 className="text-lg font-header tracking-widest text-white leading-none">{CANDICE_CORE.title}</h3>
-                            <p className="text-[9px] font-mono text-white/50 mt-0.5 uppercase tracking-widest">Targeted Recovery</p>
-                          </div>
+                  return (
+                     <div key={u} className={`glass-card rounded-xl flex flex-col overflow-hidden border border-white/5 shadow-xl ${isDual ? 'h-full min-h-0' : ''}`}>
+                        {/* Compact Header */}
+                        <div className="h-16 relative overflow-hidden shrink-0 border-b border-white/10">
+                           <div className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity" style={{ backgroundImage: `url('${getDailyImage(u)}')` }}></div>
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent"></div>
+                           <div className="absolute bottom-1 left-3 flex items-end gap-2">
+                               <h2 className="text-2xl font-header tracking-widest text-white leading-none">{u}</h2>
+                               <span className="text-[9px] font-bold uppercase tracking-widest mb-0.5" style={{color: theme.color}}>{routine.id}</span>
+                           </div>
                         </div>
-                        <div className="space-y-3">
-                          {CANDICE_CORE.exercises.map((exercise, index) => (
-                            <ExerciseBlock 
-                                key={exercise.name} 
-                                username={username} 
-                                exercise={exercise} 
-                                state={sessionData[username].exercises[exercise.name]} 
-                                workoutsDb={workoutsDb} 
-                                updateExercise={updateExercise} 
-                                theme={theme} 
-                                number={routine.exercises.length + index + 1} 
-                                isCore={true} 
-                                editSessionId={editSession?.id} 
-                                onOpenImage={setEnlargedImage}
-                            />
-                          ))}
+
+                        {/* Independent Scrolling List */}
+                        <div className="flex-1 overflow-y-auto p-2 md:p-3 space-y-3 custom-scrollbar">
+                           {routine.exercises.map((ex, idx) => (
+                              <div key={ex.name} className="bg-black/50 border border-white/5 rounded-lg p-2.5 shadow-inner">
+                                 <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-sm font-bold text-white leading-tight w-[70%] truncate"><span style={{color: theme.color}} className="mr-1">{idx+1}.</span>{ex.name}</h3>
+                                    <span className="text-[8px] bg-white/5 px-1.5 py-0.5 rounded font-mono text-white/50">{ex.targetSets}s • {ex.targetReps}</span>
+                                 </div>
+                                 <div className="space-y-1.5 pl-4 border-l-2" style={{borderColor: `${theme.color}40`}}>
+                                    {sessionData[u].exercises[ex.name].sets.map((s, sIdx) => (
+                                       <div key={sIdx} className="flex gap-2 items-center">
+                                          <span className="text-[9px] font-mono text-white/30 w-3">{sIdx+1}</span>
+                                          <input type="text" inputMode="decimal" value={s.weight} onChange={e=>updateSet(u, ex.name, sIdx, 'weight', e.target.value)} placeholder="Lbs" className="flex-1 bg-black/60 border border-white/10 rounded py-1 px-2 text-white font-black text-sm outline-none focus:border-white/40 text-center" />
+                                          <input type="number" inputMode="numeric" value={s.reps} onChange={e=>updateSet(u, ex.name, sIdx, 'reps', e.target.value)} placeholder="Reps" className="flex-1 bg-black/60 border border-white/10 rounded py-1 px-2 text-white font-black text-sm outline-none focus:border-white/40 text-center" />
+                                       </div>
+                                    ))}
+                                 </div>
+                              </div>
+                           ))}
+
+                           {u === 'Candice' && appSettings.CandiceCore && (
+                              <div className="mt-4 pt-3 border-t border-white/10">
+                                 <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center"><IconCheckCircle size={12} className="mr-1"/> {appSettings.CandiceCore.title}</h3>
+                                 <div className="space-y-3">
+                                    {appSettings.CandiceCore.exercises.map((ex, idx) => (
+                                       <div key={ex.name} className="bg-black/50 border border-emerald-900/30 rounded-lg p-2.5 shadow-inner">
+                                          <div className="flex justify-between items-start mb-2">
+                                             <h3 className="text-xs font-bold text-white leading-tight w-[70%] truncate">{ex.name}</h3>
+                                             <span className="text-[8px] bg-white/5 px-1.5 py-0.5 rounded font-mono text-white/50">{ex.targetSets}s • {ex.targetReps}</span>
+                                          </div>
+                                          <div className="space-y-1.5 pl-4 border-l-2 border-emerald-900/50">
+                                             {sessionData[u].exercises[ex.name].sets.map((s, sIdx) => (
+                                                <div key={sIdx} className="flex gap-2 items-center">
+                                                   <span className="text-[9px] font-mono text-white/30 w-3">{sIdx+1}</span>
+                                                   <input type="text" inputMode="decimal" value={s.weight} onChange={e=>updateSet(u, ex.name, sIdx, 'weight', e.target.value)} placeholder="Lbs" className="flex-1 bg-black/60 border border-white/10 rounded py-1 px-2 text-white font-bold text-xs outline-none text-center" />
+                                                   <input type="number" inputMode="numeric" value={s.reps} onChange={e=>updateSet(u, ex.name, sIdx, 'reps', e.target.value)} placeholder="Reps" className="flex-1 bg-black/60 border border-white/10 rounded py-1 px-2 text-white font-bold text-xs outline-none text-center" />
+                                                </div>
+                                             ))}
+                                          </div>
+                                       </div>
+                                    ))}
+                                 </div>
+                              </div>
+                           )}
+                           
+                           {/* Cardio */}
+                           <div className="mt-4 pt-3 border-t border-white/10 pb-4">
+                              <div className="flex flex-row gap-2">
+                                 <select value={sessionData[u].cardioType||''} onChange={e=>setSessionData(p=>{const n={...p}; n[u].cardioType=e.target.value; return n;})} className="flex-[2] bg-black/60 border border-white/10 rounded p-1.5 text-[10px] font-bold text-white/80 outline-none">
+                                    <option value="">Cardio (Opt)</option>
+                                    {(appSettings.CardioOptions || DEFAULT_CARDIO).map(c=><option key={c} value={c}>{c}</option>)}
+                                 </select>
+                                 <input type="number" value={sessionData[u].cardioDuration||''} onChange={e=>setSessionData(p=>{const n={...p}; n[u].cardioDuration=e.target.value; return n;})} placeholder="Min" className="flex-1 bg-black/60 border border-white/10 rounded p-1.5 text-[10px] font-bold text-center text-white outline-none" />
+                              </div>
+                           </div>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Optional Cardio Block */}
-                    <div className="mt-4 border-t border-white/10 pt-4 pb-4">
-                       <div className="flex items-center mb-2">
-                          <IconActivity size={16} className={theme.textClass} />
-                          <h3 className="text-md font-header tracking-widest text-white ml-2">Optional Cardio</h3>
-                       </div>
-                       <div className="flex flex-wrap gap-2">
-                          <select 
-                             value={sessionData[username].cardioType || ''} 
-                             onChange={e => setSessionData(prev => ({...prev, [username]: {...prev[username], cardioType: e.target.value}}))}
-                             className="flex-1 bg-black/40 border border-white/10 rounded-lg p-2 text-[10px] font-bold tracking-wider text-white/80 focus:outline-none focus:border-white/30"
-                          >
-                             <option value="">None Logged</option>
-                             <option value="Treadmill">Treadmill</option>
-                             <option value="Row Machine">Row Machine</option>
-                             <option value="Rucking / Weighted Walk">Rucking / Weighted Walk</option>
-                          </select>
-                          <input 
-                             type="number" 
-                             value={sessionData[username].cardioDuration || ''}
-                             onChange={e => setSessionData(prev => ({...prev, [username]: {...prev[username], cardioDuration: e.target.value}}))}
-                             placeholder="Min"
-                             className="w-16 bg-black/40 border border-white/10 rounded-lg p-2 text-white font-mono text-sm text-center focus:outline-none focus:border-white/30"
-                          />
-                       </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Enlarged Image Modal */}
-          {enlargedImage && (
-             <div className="fixed inset-0 bg-black/95 backdrop-blur-lg z-[200] flex items-center justify-center p-4 sm:p-8" onClick={() => setEnlargedImage(null)}>
-                <div className="w-full max-w-3xl flex flex-col relative" onClick={e => e.stopPropagation()}>
-                   <div className="flex justify-between items-start mb-4 shrink-0">
-                      <div>
-                         <h2 className="text-3xl sm:text-4xl font-header tracking-widest text-white leading-none drop-shadow-md">{enlargedImage.name}</h2>
-                         <div className={`inline-block mt-2 px-3 py-1 rounded bg-white/10 ${enlargedImage.theme.textClass} border border-white/10 font-mono text-xs font-bold tracking-widest uppercase shadow-sm`}>
-                            Form & Technique Guide
-                         </div>
-                      </div>
-                      <button onClick={() => setEnlargedImage(null)} className="text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-3 rounded-full transition-all btn-press backdrop-blur-sm border border-white/10">
-                         <IconX size={24} />
-                      </button>
-                   </div>
-                   <div className="glass-card rounded-2xl border border-white/10 relative overflow-hidden bg-[#050505]">
-                      <img src={enlargedImage.src} alt={enlargedImage.name} className="w-full aspect-video object-cover opacity-80" />
-                      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.9)] pointer-events-none z-10"></div>
-                      <div className="relative z-20 w-full p-4 sm:p-6 bg-gradient-to-t from-black via-black/80 to-black/40 border-t border-white/5 shrink-0">
-                         <div className="flex items-start gap-3">
-                            <IconInfo size={24} className={`${enlargedImage.theme.textClass} shrink-0 mt-1 drop-shadow-md`} />
-                            <div>
-                               <h4 className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1 font-mono">Execution Cues</h4>
-                               <p className="text-lg sm:text-xl text-white font-bold leading-tight tracking-wide drop-shadow-md">
-                                  {enlargedImage.notes}
-                               </p>
-                            </div>
-                         </div>
-                      </div>
-                   </div>
-                </div>
-             </div>
-          )}
-        </div>
+                     </div>
+                  );
+               })}
+            </div>
+         </div>
       );
     }
 
-    function ExerciseBlock({ username, exercise, state, workoutsDb, updateExercise, theme, number, isCore = false, editSessionId, onOpenImage }) {
-      const lastSessionData = useMemo(() => {
-        const userHistory = workoutsDb.filter(w => w.user === username && w.id !== editSessionId).sort((a,b) => new Date(b.date) - new Date(a.date));
-        for (const session of userHistory) {
-          if (session.exercises && session.exercises[exercise.name]) {
-            const exData = session.exercises[exercise.name];
-            const sets = Array.isArray(exData) ? exData : (exData.sets || []);
-            return { date: session.date, sets };
-          }
-        }
-        return null;
-      }, [username, exercise.name, workoutsDb, editSessionId]);
+    // --- SPREADSHEET MODAL (EXCEL VIEW) ---
+    function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, appSettings }) {
+       const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow).sort((a,b)=>new Date(a.date)-new Date(b.date)), [workoutsDb, userToShow]);
+       const activeRoutines = appSettings[userToShow] || DEFAULT_ROUTINES;
+       
+       const dates = useMemo(() => userWorkouts.map(w => ({id: w.id, str: new Date(w.date).toLocaleDateString(undefined, {month:'numeric',day:'numeric'}), session: w})), [userWorkouts]);
+       
+       // Gather all unique exercises ever logged
+       const allExercises = useMemo(() => {
+           const set = new Set();
+           userWorkouts.forEach(w => Object.keys(w.exercises).forEach(e => set.add(e)));
+           return Array.from(set);
+       }, [userWorkouts]);
 
-      return (
-        <div className="glass-card bg-black/40 rounded-xl p-3 border border-white/5 relative overflow-hidden">
-          {/* Subtle number background */}
-          <div className="absolute -right-4 -top-6 text-[80px] font-header font-bold text-white/5 select-none pointer-events-none leading-none">
-             {number}
-          </div>
+       const themeText = userToShow === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
 
-          <div className="flex gap-3 items-start mb-2 relative z-10 w-full pr-2">
-             <button
-               onClick={() => onOpenImage({ name: exercise.name, notes: exercise.notes, src: getExerciseImage(exercise.name), theme: theme })}
-               className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-white/20 btn-press group relative shadow-lg mt-0.5"
-             >
-               <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors z-10 flex items-center justify-center">
-                   <IconPlay size={12} className="text-white opacity-60 group-hover:opacity-100 transition-opacity" />
-               </div>
-               <img src={getExerciseImage(exercise.name)} alt={exercise.name} className="w-full h-full object-cover filter brightness-75 group-hover:scale-110 transition-transform duration-500" />
-             </button>
-             
-             <div className="flex-1 min-w-0">
-               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  <h3 className="text-md sm:text-lg font-bold text-white/90 tracking-tight leading-tight truncate">
-                    {exercise.name}
-                  </h3>
-                  <div className="bg-black/50 text-white/70 text-[8px] font-mono px-1.5 py-0.5 rounded border border-white/10 uppercase tracking-widest whitespace-nowrap shrink-0">
-                    {state.targetSets}s • {exercise.targetReps}
-                  </div>
-               </div>
-               <p className="text-white/50 text-[9px] flex items-start leading-snug line-clamp-1 sm:line-clamp-2 mt-0.5">
-                 <IconInfo size={10} className="mr-1 mt-[1px] flex-shrink-0" />
-                 {exercise.notes}
-               </p>
+       return (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-[60] p-1 md:p-4" onClick={onClose}>
+             <div className="glass-card rounded-lg w-full max-w-[98vw] h-[95vh] flex flex-col border border-white/10" onClick={e => e.stopPropagation()}>
+                <div className="p-3 border-b border-white/10 flex justify-between items-center bg-black/60 shrink-0">
+                   <h2 className="text-xl font-header tracking-widest text-white flex items-center"><IconTable size={16} className={`mr-2 ${themeText}`}/> {userToShow} History</h2>
+                   <button onClick={onClose} className="text-white/50 hover:text-white p-1 bg-white/5 rounded btn-press"><IconX size={16} /></button>
+                </div>
+                
+                <div className="flex-1 overflow-auto bg-[#0a0a0a] relative custom-scrollbar">
+                   <table className="w-full text-left border-collapse text-[10px] whitespace-nowrap font-mono">
+                      <thead className="sticky top-0 z-20 bg-[#151515] shadow-md">
+                         <tr>
+                            <th className="p-2 border-b border-r border-white/10 text-white/50 sticky left-0 bg-[#151515] z-30 uppercase tracking-widest min-w-[120px]">Exercise</th>
+                            {dates.map(d => (
+                               <th key={d.id} className="p-2 border-b border-r border-white/10 text-center text-white/80 cursor-pointer hover:bg-white/5 transition-colors" onClick={()=>onEditSession(d.session)} title="Edit Session">
+                                  {d.str}
+                               </th>
+                            ))}
+                         </tr>
+                      </thead>
+                      <tbody>
+                         {allExercises.map((ex, i) => (
+                            <tr key={ex} className="hover:bg-white/5 transition-colors border-b border-white/5">
+                               <td className="p-2 border-r border-white/10 sticky left-0 bg-[#111] z-10 text-white font-sans font-bold max-w-[150px] truncate shadow-[2px_0_5px_rgba(0,0,0,0.5)]">{ex}</td>
+                               {userWorkouts.map(w => {
+                                  const exData = w.exercises[ex];
+                                  let txt = '-';
+                                  if(exData && Array.isArray(exData) && exData.length>0) {
+                                      txt = exData.map(s => `${s.weight}x${s.reps}`).join(', ');
+                                  }
+                                  return <td key={w.id} className="p-2 border-r border-white/5 text-center text-white/60">{txt}</td>;
+                               })}
+                            </tr>
+                         ))}
+                         {/* Cardio Row */}
+                         <tr className="bg-white/5 border-t border-white/20">
+                             <td className={`p-2 border-r border-white/10 sticky left-0 bg-[#151515] z-10 font-sans font-bold shadow-[2px_0_5px_rgba(0,0,0,0.5)] ${themeText}`}>CARDIO</td>
+                             {userWorkouts.map(w => (
+                                 <td key={w.id} className="p-2 border-r border-white/5 text-center text-white/60">{w.cardioType && w.cardioDuration ? `${w.cardioType} (${w.cardioDuration}m)` : '-'}</td>
+                             ))}
+                         </tr>
+                      </tbody>
+                   </table>
+                </div>
              </div>
           </div>
-
-          <div className="flex flex-col md:flex-row gap-2 mb-2 relative z-10">
-             {/* Today's Target / Recommendation Banner */}
-             {(state.pastRecWeight || state.pastRecReps) && (
-                 <div className="flex-1 bg-amber-500/10 border border-amber-500/30 rounded-lg p-1.5 flex justify-between items-center">
-                     <span className="text-[8px] text-amber-400 font-bold uppercase tracking-widest flex items-center">
-                         <IconLightbulb size={10} className="mr-1" /> Target
-                     </span>
-                     <span className="text-amber-400 font-mono font-bold text-[10px]">
-                         {state.pastRecWeight || '-'} lbs × {state.pastRecReps || '-'}
-                     </span>
-                 </div>
-             )}
-
-             {/* Last Session Box */}
-             {lastSessionData ? (
-               <div className="flex-1 bg-black/30 border border-white/5 rounded-lg p-1.5 flex justify-between items-center">
-                 <span className="font-bold text-white/40 text-[8px] uppercase tracking-widest mr-2">Last Session</span>
-                 <div className="text-white/80 font-mono text-[10px]">
-                   {lastSessionData.sets.length}s <span className="text-white mx-0.5">{lastSessionData.sets[0]?.weight || 0}</span>×<span className="text-white ml-0.5">{lastSessionData.sets[0]?.reps || 0}</span>
-                 </div>
-               </div>
-             ) : (
-               <div className="flex-1 bg-black/30 border border-white/5 rounded-lg p-1.5 text-[8px] text-white/30 font-mono italic text-center">
-                 NO PREVIOUS DATA
-               </div>
-             )}
-          </div>
-
-          <div className="flex gap-2 relative z-10">
-            <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-1.5 focus-within:border-white/50 transition-all shadow-inner">
-              <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block">WEIGHT (LBS)</label>
-              <input type="text" inputMode="decimal" value={state.weight} onChange={(e) => updateExercise(username, exercise.name, 'weight', e.target.value)} placeholder="0" className="w-full bg-transparent text-white font-mono text-xl font-black focus:outline-none placeholder-white/10" />
-            </div>
-            <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-1.5 focus-within:border-white/50 transition-all shadow-inner">
-              <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block">REPS</label>
-              <input type="number" inputMode="numeric" value={state.reps} onChange={(e) => updateExercise(username, exercise.name, 'reps', e.target.value)} placeholder="0" className="w-full bg-transparent text-white font-mono text-xl font-black focus:outline-none placeholder-white/10" />
-            </div>
-            <div className="w-14 bg-black/60 border border-white/10 rounded-lg p-1.5 focus-within:border-red-500 transition-all shadow-inner">
-              <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block text-center">RPE</label>
-              <input type="number" inputMode="numeric" value={state.rpe} onChange={(e) => updateExercise(username, exercise.name, 'rpe', e.target.value)} placeholder="-" className="w-full bg-transparent text-red-400 font-mono text-lg font-black focus:outline-none placeholder-white/10 text-center" />
-            </div>
-          </div>
-
-          {/* Individual Exercise Notes & Next Session Recommendations */}
-          <div className="mt-2 pt-2 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-2 relative z-10">
-             <div>
-                 <div className="flex items-center mb-1">
-                     <IconEdit size={8} className={`mr-1 ${theme.textClass}`} />
-                     <label className="text-[8px] text-white/50 font-bold tracking-widest uppercase">Notes</label>
-                 </div>
-                 <textarea
-                     value={state.note || ''}
-                     onChange={(e) => updateExercise(username, exercise.name, 'note', e.target.value)}
-                     placeholder="Form cues, machine settings..."
-                     className={`w-full bg-black/40 border border-white/10 rounded-md p-1.5 text-[10px] text-white/80 focus:outline-none focus:border-white/30 transition-all h-[36px] resize-none placeholder-white/20`}
-                 />
-             </div>
-             
-             <div className="bg-black/30 border border-white/5 rounded-md p-1.5">
-                 <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Next Target</label>
-                 <div className="flex gap-2">
-                     <div className="flex-1">
-                         <input 
-                             type="text" inputMode="decimal"
-                             value={state.recWeight || ''}
-                             onChange={(e) => updateExercise(username, exercise.name, 'recWeight', e.target.value)}
-                             placeholder="Lbs" 
-                             className="w-full bg-black/50 border border-white/10 rounded py-1 px-1.5 text-amber-400 font-mono text-[10px] focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
-                         />
-                     </div>
-                     <div className="flex-1">
-                         <input 
-                             type="number" inputMode="numeric"
-                             value={state.recReps || ''}
-                             onChange={(e) => updateExercise(username, exercise.name, 'recReps', e.target.value)}
-                             placeholder="Reps" 
-                             className="w-full bg-black/50 border border-white/10 rounded py-1 px-1.5 text-amber-400 font-mono text-[10px] focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
-                         />
-                     </div>
-                 </div>
-             </div>
-          </div>
-
-        </div>
-      );
+       );
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
   <script>
-    // CACHE BUSTING SERVICE WORKER SCRIPT
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // Find existing service workers and completely destroy their cache
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-                registration.unregister();
-                console.log("Old ServiceWorker unregistered to force update.");
-            }
-        });
-
-        // Register a fresh Service Worker with a random version parameter to bust the iOS cache
-        navigator.serviceWorker.register('sw.js?v=' + new Date().getTime())
-          .then((registration) => {
-            console.log('RC Fit ServiceWorker registered with scope:', registration.scope);
-            registration.update();
-          })
-          .catch((error) => {
-            console.warn('ServiceWorker registration failed:', error);
-          });
+        navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+        navigator.serviceWorker.register('sw.js?v=' + new Date().getTime());
       });
     }
   </script>
