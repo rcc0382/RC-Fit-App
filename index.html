@@ -69,10 +69,14 @@
       filter: brightness(1.2);
     }
     
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    /* Hide scrollbar for tabs */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 
   <!-- React & ReactDOM -->
@@ -136,20 +140,6 @@
     // --- CONSTANTS & MAPPINGS ---
     const ROUTINE_ORDER = ['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
 
-    const DAILY_TIPS = [
-      "Focus on the eccentric (lowering) phase of your lifts. Control the weight for 2-3 seconds down to maximize hypertrophy.",
-      "Brace your core before every compound lift like you're about to be punched in the stomach. This protects your spine and transfers power.",
-      "Recomposition requires patience. The scale might not move, but your clothes will fit differently as fat drops and muscle grows.",
-      "Mind-muscle connection matters. Actively visualize and squeeze the muscle you're trying to target during the rep.",
-      "Rest is when you grow. Stick strictly to your 60-120 second rest timers to ensure ATP replenishment for the next heavy set.",
-      "Candice: For deep core rebuilds, avoid 'coning' or bulging in your stomach during Deadbugs. Keep the lower back glued to the floor.",
-      "Robby: On heavy pressing days, pull your shoulder blades down and back into the bench to create a stable, safe pressing platform.",
-      "Hydration check: Dehydration by just 2% can drop your strength output by up to 10%. Drink up before and during the session.",
-      "Progressive overload isn't just weight. Doing the same weight for one more rep, or with better form, is still progress.",
-      "Don't skip the deep stretch. The stretch position under load (like the bottom of a DB fly) is highly stimulative for muscle growth."
-    ];
-
-    // Muscular Anatomy Mapping for Heatmap & Form Images
     const EXERCISE_MUSCLE_MAP = {
       'Incline DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
       'Flat DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
@@ -303,21 +293,19 @@
           { text: "Vision creates faith and faith creates willpower. With faith there is no anxiety and no doubt - just absolute confidence in yourself.", author: "Arnold Schwarzenegger" }
         ];
 
-        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-        const selectedQuote = FITNESS_QUOTES[dayOfYear % FITNESS_QUOTES.length];
-        
-        setQuote(selectedQuote);
+        // Pick a random quote on every load
+        const randomIndex = Math.floor(Math.random() * FITNESS_QUOTES.length);
+        setQuote(FITNESS_QUOTES[randomIndex]);
       }, []);
 
       return (
-        <div className="glass-card rounded-xl p-6 mb-6 relative overflow-hidden shadow-lg group">
-           <div className="absolute -right-4 -top-4 text-white/5 opacity-50 transition-transform group-hover:scale-110 duration-700 pointer-events-none">
-              <IconQuote size={120} />
+        <div className="glass-card rounded-xl p-4 mb-4 relative overflow-hidden shadow-sm group">
+           <div className="absolute -right-2 -top-2 text-white/5 opacity-50 pointer-events-none">
+              <IconQuote size={80} />
            </div>
            <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
-             <h4 className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-3">Daily Inspiration</h4>
-             <p className="text-white/90 text-xl md:text-2xl font-header tracking-wide leading-relaxed drop-shadow-md">"{quote.text}"</p>
-             <p className="text-[var(--robby-primary)] text-[11px] font-mono uppercase tracking-widest mt-3">— {quote.author}</p>
+             <p className="text-white/90 text-sm md:text-lg font-header tracking-wide leading-snug">"{quote.text}"</p>
+             <p className="text-[var(--robby-primary)] text-[9px] font-mono uppercase tracking-widest mt-1.5">— {quote.author}</p>
            </div>
         </div>
       );
@@ -1206,7 +1194,7 @@
       )
     }
 
-    // --- WORKBOOK SPREADSHEET MODAL ---
+    // --- EXCEL-STYLE WORKBOOK SPREADSHEET MODAL ---
     function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, getActiveRoutines }) {
        const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow), [workoutsDb, userToShow]);
        const activeRoutines = getActiveRoutines(userToShow);
@@ -1222,20 +1210,19 @@
        }, [userWorkouts, routineOrder]);
 
        const themeText = userToShow === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
-       const themeTextHover = userToShow === 'Robby' ? 'hover:text-[var(--robby-primary)]' : 'hover:text-[var(--candice-primary)]';
 
        return (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[60] p-4 sm:p-8" onClick={onClose}>
-             <div className="glass-card rounded-2xl w-full max-w-7xl max-h-[90vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[60] p-2 sm:p-6" onClick={onClose}>
+             <div className="glass-card rounded-xl w-full max-w-[95vw] max-h-[95vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 shrink-0">
                    <div>
-                      <h2 className="text-3xl font-header tracking-wide text-white flex items-center"><IconTable size={24} className={`mr-3 ${themeText}`}/> {userToShow}'s Data Log</h2>
-                      <p className="text-xs font-mono text-white/50 mt-1 uppercase tracking-widest">Click any date to modify entry.</p>
+                      <h2 className="text-2xl font-header tracking-wide text-white flex items-center"><IconTable size={20} className={`mr-3 ${themeText}`}/> {userToShow}'s Log Report</h2>
+                      <p className="text-[10px] font-mono text-white/50 mt-1 uppercase tracking-widest">Click any date column header to edit</p>
                    </div>
-                   <button onClick={onClose} className="text-white/50 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={20} /></button>
+                   <button onClick={onClose} className="text-white/50 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={18} /></button>
                 </div>
                 
-                <div className="overflow-auto flex-1 p-4 sm:p-6 bg-black/20 space-y-12 pb-24">
+                <div className="overflow-auto flex-1 p-0 bg-black/20 pb-12 relative">
                    {routines.length === 0 ? (
                       <div className="text-center text-white/30 font-mono text-sm mt-10">NO DATA</div>
                    ) : (
@@ -1246,7 +1233,7 @@
                          
                          const dates = sessions.map(s => ({ 
                             id: s.id, 
-                            dateStr: new Date(s.date).toLocaleDateString(undefined, {month: 'numeric', day: 'numeric', year: '2-digit'}),
+                            dateStr: new Date(s.date).toLocaleDateString(undefined, {month: '2-digit', day: '2-digit', year: '2-digit'}),
                             session: s 
                          }));
                          
@@ -1275,44 +1262,43 @@
                             return { exercise: exName, cells, isCardio: false };
                          });
 
-                         // Add Cardio Row at bottom if any session logged it
                          const hasCardio = sessions.some(s => s.cardioType && s.cardioDuration);
                          if (hasCardio) {
                              const cardioCells = sessions.map(s => {
                                  if (s.cardioType && s.cardioDuration) return `${s.cardioType} (${s.cardioDuration}m)`;
                                  return '-';
                              });
-                             rows.push({ exercise: 'CARDIO (OPTIONAL)', cells: cardioCells, isCardio: true });
+                             rows.push({ exercise: 'CARDIO', cells: cardioCells, isCardio: true });
                          }
 
                          return (
-                            <div key={routineName} className="glass-card rounded-xl overflow-hidden shadow-lg border border-white/5">
-                               <div className="bg-black/50 p-4 border-b border-white/5">
-                                  <h3 className="text-xl font-header text-white tracking-widest">{routineName}</h3>
+                            <div key={routineName} className="mb-8">
+                               <div className="bg-[#0a0a0a] p-3 border-y border-white/10 sticky top-0 z-40 shadow-md">
+                                  <h3 className="text-lg font-header text-white tracking-widest">{routineName}</h3>
                                </div>
-                               <div className="overflow-x-auto">
-                                  <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
-                                     <thead className="bg-black/40 shadow-sm">
+                               <div className="w-full">
+                                  <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
+                                     <thead>
                                         <tr>
-                                           <th className="p-3 font-bold text-white/50 text-[10px] uppercase tracking-widest border-b border-r border-white/5 sticky left-0 bg-black/80 z-10 min-w-[200px]">Exercise</th>
+                                           <th className="px-3 py-2 font-bold text-white/60 text-[9px] uppercase tracking-widest border border-white/10 sticky top-[45px] left-0 bg-[#111] z-30 shadow-[2px_2px_5px_rgba(0,0,0,0.5)]">Exercise</th>
                                            {dates.map(d => (
-                                              <th key={d.id} className="p-3 font-bold text-white/50 text-xs uppercase tracking-widest border-b border-r border-white/5 text-center min-w-[120px] align-top">
-                                                 <button onClick={() => onEditSession(d.session)} className={`group flex flex-col items-center mx-auto transition-colors ${themeTextHover}`}>
-                                                    <span className="font-mono">{d.dateStr}</span>
-                                                    <span className="text-[9px] font-sans font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 flex items-center transition-opacity bg-white/10 px-2 py-0.5 rounded text-white"><IconEdit size={10} className="mr-1"/> Edit</span>
-                                                 </button>
+                                              <th key={d.id} className="px-3 py-2 font-bold text-white/60 text-[10px] uppercase tracking-widest border border-white/10 text-center sticky top-[45px] bg-[#151515] z-20 shadow-[0_2px_5px_rgba(0,0,0,0.5)] cursor-pointer hover:bg-[#222]" onClick={() => onEditSession(d.session)}>
+                                                 <div className="flex items-center justify-center gap-1 group">
+                                                    <span className="font-mono text-white/80">{d.dateStr}</span>
+                                                    <IconEdit size={10} className="opacity-0 group-hover:opacity-100 text-white/50 transition-opacity"/>
+                                                 </div>
                                               </th>
                                            ))}
                                         </tr>
                                      </thead>
-                                     <tbody className="divide-y divide-white/5">
+                                     <tbody>
                                         {rows.map((row, idx) => (
-                                           <tr key={idx} className={`hover:bg-white/5 transition-colors group ${row.isCardio ? 'border-t-2 border-white/20 bg-white/5' : ''}`}>
-                                              <td className={`p-3 font-medium border-r border-white/5 sticky left-0 bg-[#151515]/95 backdrop-blur z-10 group-hover:bg-[#1a1a1a] transition-colors truncate max-w-[250px] ${row.isCardio ? themeText : 'text-white/90'}`} title={row.exercise}>
+                                           <tr key={idx} className={`even:bg-white/[0.02] hover:bg-white/10 transition-colors group ${row.isCardio ? 'border-t-2 border-white/20 bg-white/5' : ''}`}>
+                                              <td className={`px-3 py-2.5 font-medium border border-white/10 sticky left-0 bg-[#151515] group-hover:bg-[#222] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.5)] max-w-[180px] truncate ${row.isCardio ? themeText : 'text-white/90'}`} title={row.exercise}>
                                                  {row.exercise}
                                               </td>
                                               {row.cells.map((cell, cIdx) => (
-                                                 <td key={cIdx} className={`p-3 font-mono text-[11px] border-r border-white/5 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/60 group-hover:text-white'}`}>
+                                                 <td key={cIdx} className={`px-3 py-2.5 font-mono text-[10px] border border-white/10 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/50 group-hover:text-white'}`}>
                                                     {cell}
                                                  </td>
                                               ))}
@@ -1809,7 +1795,7 @@
             </div>
           </div>
 
-          <div className={`grid grid-cols-1 ${users.length === 2 ? 'xl:grid-cols-2 gap-6' : 'max-w-2xl mx-auto'} items-start`}>
+          <div className={`grid grid-cols-1 ${users.length === 2 ? 'lg:grid-cols-2 gap-4 h-[calc(100vh-140px)]' : 'max-w-2xl mx-auto'} items-start`}>
             {users.map(username => {
               const routineId = sessionData[username].routineId;
               const activeRoutines = getActiveRoutines(username);
@@ -1819,16 +1805,16 @@
                 : { primary: 'var(--candice-primary)', glowClass: 'glow-candice', textClass: 'text-[var(--candice-primary)]', focusRing: 'focus:border-[var(--candice-primary)] focus:ring-[var(--candice-primary)]' };
 
               return (
-                <div key={username} className={`glass-card rounded-2xl overflow-hidden flex flex-col shadow-2xl ${theme.glowClass}`}>
-                  <div className="p-4 md:p-5 border-b border-white/10 relative overflow-hidden bg-black/40">
+                <div key={username} className={`glass-card rounded-2xl overflow-hidden flex flex-col shadow-2xl ${theme.glowClass} ${users.length === 2 ? 'h-full' : ''}`}>
+                  <div className="p-3 md:p-4 border-b border-white/10 relative overflow-hidden bg-black/40 shrink-0">
                     <div className="flex items-center gap-3 relative z-10 mb-1">
-                       <h2 className="text-3xl md:text-4xl font-header tracking-widest text-white leading-none">{username}</h2>
+                       <h2 className="text-2xl md:text-3xl font-header tracking-widest text-white leading-none">{username}</h2>
                        {editSession && <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border border-amber-500/30">Editing</span>}
                     </div>
-                    <div className={`${theme.textClass} font-mono font-bold text-[10px] md:text-xs tracking-widest relative z-10`}>{routine.id} SEQUENCE</div>
+                    <div className={`${theme.textClass} font-mono font-bold text-[10px] tracking-widest relative z-10`}>{routine.id} SEQUENCE</div>
                   </div>
 
-                  <div className="p-3 md:p-4 space-y-4 bg-black/20">
+                  <div className="p-2 md:p-3 space-y-3 bg-black/20 flex-1 overflow-y-auto">
                     {routine.exercises.map((exercise, index) => (
                       <ExerciseBlock 
                           key={exercise.name} 
@@ -1845,15 +1831,15 @@
                     ))}
 
                     {username === 'Candice' && (
-                      <div className="mt-6 border-t border-white/10 pt-6">
-                        <div className="mb-4 flex items-center">
-                          <div className="bg-[var(--candice-primary)]/20 p-2 rounded-lg mr-3"><IconCheckCircle size={18} className="text-[var(--candice-primary)]" /></div>
+                      <div className="mt-4 border-t border-white/10 pt-4">
+                        <div className="mb-3 flex items-center">
+                          <div className="bg-[var(--candice-primary)]/20 p-1.5 rounded-lg mr-2"><IconCheckCircle size={16} className="text-[var(--candice-primary)]" /></div>
                           <div>
-                            <h3 className="text-xl md:text-2xl font-header tracking-widest text-white leading-none">{CANDICE_CORE.title}</h3>
-                            <p className="text-[10px] font-mono text-white/50 mt-1 uppercase tracking-widest">Targeted Recovery</p>
+                            <h3 className="text-lg font-header tracking-widest text-white leading-none">{CANDICE_CORE.title}</h3>
+                            <p className="text-[9px] font-mono text-white/50 mt-0.5 uppercase tracking-widest">Targeted Recovery</p>
                           </div>
                         </div>
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           {CANDICE_CORE.exercises.map((exercise, index) => (
                             <ExerciseBlock 
                                 key={exercise.name} 
@@ -1874,16 +1860,16 @@
                     )}
 
                     {/* Optional Cardio Block */}
-                    <div className="mt-4 border-t border-white/10 pt-4">
-                       <div className="flex items-center mb-3">
-                          <IconActivity size={18} className={theme.textClass} />
-                          <h3 className="text-lg font-header tracking-widest text-white ml-2">Optional Cardio</h3>
+                    <div className="mt-4 border-t border-white/10 pt-4 pb-4">
+                       <div className="flex items-center mb-2">
+                          <IconActivity size={16} className={theme.textClass} />
+                          <h3 className="text-md font-header tracking-widest text-white ml-2">Optional Cardio</h3>
                        </div>
-                       <div className="flex flex-wrap gap-3">
+                       <div className="flex flex-wrap gap-2">
                           <select 
                              value={sessionData[username].cardioType || ''} 
                              onChange={e => setSessionData(prev => ({...prev, [username]: {...prev[username], cardioType: e.target.value}}))}
-                             className="flex-1 bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs font-bold tracking-wider text-white/80 focus:outline-none focus:border-white/30"
+                             className="flex-1 bg-black/40 border border-white/10 rounded-lg p-2 text-[10px] font-bold tracking-wider text-white/80 focus:outline-none focus:border-white/30"
                           >
                              <option value="">None Logged</option>
                              <option value="Treadmill">Treadmill</option>
@@ -1894,8 +1880,8 @@
                              type="number" 
                              value={sessionData[username].cardioDuration || ''}
                              onChange={e => setSessionData(prev => ({...prev, [username]: {...prev[username], cardioDuration: e.target.value}}))}
-                             placeholder="Minutes"
-                             className="w-24 bg-black/40 border border-white/10 rounded-lg p-2.5 text-white font-mono text-sm text-center focus:outline-none focus:border-white/30"
+                             placeholder="Min"
+                             className="w-16 bg-black/40 border border-white/10 rounded-lg p-2 text-white font-mono text-sm text-center focus:outline-none focus:border-white/30"
                           />
                        </div>
                     </div>
@@ -1956,47 +1942,47 @@
       }, [username, exercise.name, workoutsDb, editSessionId]);
 
       return (
-        <div className="glass-card bg-black/40 rounded-xl p-3 md:p-4 border border-white/5 relative overflow-hidden">
+        <div className="glass-card bg-black/40 rounded-xl p-3 border border-white/5 relative overflow-hidden">
           {/* Subtle number background */}
           <div className="absolute -right-4 -top-6 text-[80px] font-header font-bold text-white/5 select-none pointer-events-none leading-none">
              {number}
           </div>
 
-          <div className="flex gap-3 items-start mb-3 relative z-10 w-full pr-2">
+          <div className="flex gap-3 items-start mb-2 relative z-10 w-full pr-2">
              <button
                onClick={() => onOpenImage({ name: exercise.name, notes: exercise.notes, src: getExerciseImage(exercise.name), theme: theme })}
-               className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-white/20 btn-press group relative shadow-lg mt-0.5"
+               className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-white/20 btn-press group relative shadow-lg mt-0.5"
              >
                <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors z-10 flex items-center justify-center">
-                   <IconPlay size={16} className="text-white opacity-60 group-hover:opacity-100 transition-opacity" />
+                   <IconPlay size={12} className="text-white opacity-60 group-hover:opacity-100 transition-opacity" />
                </div>
                <img src={getExerciseImage(exercise.name)} alt={exercise.name} className="w-full h-full object-cover filter brightness-75 group-hover:scale-110 transition-transform duration-500" />
              </button>
              
              <div className="flex-1 min-w-0">
                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  <h3 className="text-lg sm:text-xl font-bold text-white/90 tracking-tight leading-tight truncate">
+                  <h3 className="text-md sm:text-lg font-bold text-white/90 tracking-tight leading-tight truncate">
                     {exercise.name}
                   </h3>
-                  <div className="bg-black/50 text-white/70 text-[9px] font-mono px-2 py-0.5 rounded border border-white/10 uppercase tracking-widest whitespace-nowrap shrink-0">
+                  <div className="bg-black/50 text-white/70 text-[8px] font-mono px-1.5 py-0.5 rounded border border-white/10 uppercase tracking-widest whitespace-nowrap shrink-0">
                     {state.targetSets}s • {exercise.targetReps}
                   </div>
                </div>
-               <p className="text-white/50 text-[10px] flex items-start leading-snug line-clamp-1 sm:line-clamp-2 mt-1">
-                 <IconInfo size={12} className="mr-1 mt-[1px] flex-shrink-0" />
+               <p className="text-white/50 text-[9px] flex items-start leading-snug line-clamp-1 sm:line-clamp-2 mt-0.5">
+                 <IconInfo size={10} className="mr-1 mt-[1px] flex-shrink-0" />
                  {exercise.notes}
                </p>
              </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-2 mb-3 relative z-10">
+          <div className="flex flex-col md:flex-row gap-2 mb-2 relative z-10">
              {/* Today's Target / Recommendation Banner */}
              {(state.pastRecWeight || state.pastRecReps) && (
-                 <div className="flex-1 bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 flex justify-between items-center">
-                     <span className="text-[9px] text-amber-400 font-bold uppercase tracking-widest flex items-center">
-                         <IconLightbulb size={12} className="mr-1" /> Target
+                 <div className="flex-1 bg-amber-500/10 border border-amber-500/30 rounded-lg p-1.5 flex justify-between items-center">
+                     <span className="text-[8px] text-amber-400 font-bold uppercase tracking-widest flex items-center">
+                         <IconLightbulb size={10} className="mr-1" /> Target
                      </span>
-                     <span className="text-amber-400 font-mono font-bold text-xs">
+                     <span className="text-amber-400 font-mono font-bold text-[10px]">
                          {state.pastRecWeight || '-'} lbs × {state.pastRecReps || '-'}
                      </span>
                  </div>
@@ -2004,51 +1990,51 @@
 
              {/* Last Session Box */}
              {lastSessionData ? (
-               <div className="flex-1 bg-black/30 border border-white/5 rounded-lg p-2 flex justify-between items-center">
-                 <span className="font-bold text-white/40 text-[9px] uppercase tracking-widest mr-2">Last Session</span>
-                 <div className="text-white/80 font-mono text-xs">
+               <div className="flex-1 bg-black/30 border border-white/5 rounded-lg p-1.5 flex justify-between items-center">
+                 <span className="font-bold text-white/40 text-[8px] uppercase tracking-widest mr-2">Last Session</span>
+                 <div className="text-white/80 font-mono text-[10px]">
                    {lastSessionData.sets.length}s <span className="text-white mx-0.5">{lastSessionData.sets[0]?.weight || 0}</span>×<span className="text-white ml-0.5">{lastSessionData.sets[0]?.reps || 0}</span>
                  </div>
                </div>
              ) : (
-               <div className="flex-1 bg-black/30 border border-white/5 rounded-lg p-2 text-[10px] text-white/30 font-mono italic text-center">
+               <div className="flex-1 bg-black/30 border border-white/5 rounded-lg p-1.5 text-[8px] text-white/30 font-mono italic text-center">
                  NO PREVIOUS DATA
                </div>
              )}
           </div>
 
           <div className="flex gap-2 relative z-10">
-            <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-2 focus-within:border-white/50 transition-all shadow-inner">
-              <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block">WEIGHT (LBS)</label>
-              <input type="text" inputMode="decimal" value={state.weight} onChange={(e) => updateExercise(username, exercise.name, 'weight', e.target.value)} placeholder="0" className="w-full bg-transparent text-white font-mono text-2xl font-black focus:outline-none placeholder-white/10" />
+            <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-1.5 focus-within:border-white/50 transition-all shadow-inner">
+              <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block">WEIGHT (LBS)</label>
+              <input type="text" inputMode="decimal" value={state.weight} onChange={(e) => updateExercise(username, exercise.name, 'weight', e.target.value)} placeholder="0" className="w-full bg-transparent text-white font-mono text-xl font-black focus:outline-none placeholder-white/10" />
             </div>
-            <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-2 focus-within:border-white/50 transition-all shadow-inner">
-              <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block">REPS</label>
-              <input type="number" inputMode="numeric" value={state.reps} onChange={(e) => updateExercise(username, exercise.name, 'reps', e.target.value)} placeholder="0" className="w-full bg-transparent text-white font-mono text-2xl font-black focus:outline-none placeholder-white/10" />
+            <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-1.5 focus-within:border-white/50 transition-all shadow-inner">
+              <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block">REPS</label>
+              <input type="number" inputMode="numeric" value={state.reps} onChange={(e) => updateExercise(username, exercise.name, 'reps', e.target.value)} placeholder="0" className="w-full bg-transparent text-white font-mono text-xl font-black focus:outline-none placeholder-white/10" />
             </div>
-            <div className="w-16 bg-black/60 border border-white/10 rounded-lg p-2 focus-within:border-red-500 transition-all shadow-inner">
-              <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block text-center">RPE</label>
-              <input type="number" inputMode="numeric" value={state.rpe} onChange={(e) => updateExercise(username, exercise.name, 'rpe', e.target.value)} placeholder="-" className="w-full bg-transparent text-red-400 font-mono text-xl font-black focus:outline-none placeholder-white/10 text-center" />
+            <div className="w-14 bg-black/60 border border-white/10 rounded-lg p-1.5 focus-within:border-red-500 transition-all shadow-inner">
+              <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-0.5 block text-center">RPE</label>
+              <input type="number" inputMode="numeric" value={state.rpe} onChange={(e) => updateExercise(username, exercise.name, 'rpe', e.target.value)} placeholder="-" className="w-full bg-transparent text-red-400 font-mono text-lg font-black focus:outline-none placeholder-white/10 text-center" />
             </div>
           </div>
 
           {/* Individual Exercise Notes & Next Session Recommendations */}
-          <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+          <div className="mt-2 pt-2 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-2 relative z-10">
              <div>
                  <div className="flex items-center mb-1">
-                     <IconEdit size={10} className={`mr-1 ${theme.textClass}`} />
-                     <label className="text-[9px] text-white/50 font-bold tracking-widest uppercase">Notes</label>
+                     <IconEdit size={8} className={`mr-1 ${theme.textClass}`} />
+                     <label className="text-[8px] text-white/50 font-bold tracking-widest uppercase">Notes</label>
                  </div>
                  <textarea
                      value={state.note || ''}
                      onChange={(e) => updateExercise(username, exercise.name, 'note', e.target.value)}
                      placeholder="Form cues, machine settings..."
-                     className={`w-full bg-black/40 border border-white/10 rounded-md p-2 text-[11px] text-white/80 focus:outline-none focus:border-white/30 transition-all h-[42px] resize-none placeholder-white/20`}
+                     className={`w-full bg-black/40 border border-white/10 rounded-md p-1.5 text-[10px] text-white/80 focus:outline-none focus:border-white/30 transition-all h-[36px] resize-none placeholder-white/20`}
                  />
              </div>
              
-             <div className="bg-black/30 border border-white/5 rounded-md p-2">
-                 <label className="text-[9px] text-white/40 font-bold tracking-widest uppercase mb-1.5 block">Next Target</label>
+             <div className="bg-black/30 border border-white/5 rounded-md p-1.5">
+                 <label className="text-[8px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Next Target</label>
                  <div className="flex gap-2">
                      <div className="flex-1">
                          <input 
@@ -2056,7 +2042,7 @@
                              value={state.recWeight || ''}
                              onChange={(e) => updateExercise(username, exercise.name, 'recWeight', e.target.value)}
                              placeholder="Lbs" 
-                             className="w-full bg-black/50 border border-white/10 rounded py-1 px-2 text-amber-400 font-mono text-xs focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
+                             className="w-full bg-black/50 border border-white/10 rounded py-1 px-1.5 text-amber-400 font-mono text-[10px] focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
                          />
                      </div>
                      <div className="flex-1">
@@ -2065,7 +2051,7 @@
                              value={state.recReps || ''}
                              onChange={(e) => updateExercise(username, exercise.name, 'recReps', e.target.value)}
                              placeholder="Reps" 
-                             className="w-full bg-black/50 border border-white/10 rounded py-1 px-2 text-amber-400 font-mono text-xs focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
+                             className="w-full bg-black/50 border border-white/10 rounded py-1 px-1.5 text-amber-400 font-mono text-[10px] focus:outline-none focus:border-amber-500 transition-all text-center placeholder-white/20" 
                          />
                      </div>
                  </div>
