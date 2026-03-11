@@ -320,13 +320,13 @@
       }, []);
 
       return (
-        <div className="glass-card rounded-xl p-4 mb-4 relative overflow-hidden shadow-sm group">
+        <div className="glass-card rounded-lg py-2.5 px-4 mb-6 relative overflow-hidden shadow-sm group">
            <div className="absolute -right-2 -top-2 text-white/5 opacity-50 pointer-events-none">
-              <IconQuote size={80} />
+              <IconQuote size={48} />
            </div>
-           <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
-             <p className="text-white/90 text-sm md:text-lg font-header tracking-wide leading-snug">"{quote.text}"</p>
-             <p className="text-[var(--robby-primary)] text-[10px] font-mono uppercase tracking-widest mt-1.5">— {quote.author}</p>
+           <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
+             <p className="text-white/90 text-[13px] md:text-sm font-header tracking-wide leading-tight mb-0.5">"{quote.text}"</p>
+             <p className="text-[var(--robby-primary)] text-[9px] font-mono uppercase tracking-widest mt-0.5">— {quote.author}</p>
            </div>
         </div>
       );
