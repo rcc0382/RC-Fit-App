@@ -548,80 +548,6 @@
       );
     }
 
-    // --- SESSION (WEEKLY) ANALYTICS WIDGET ---
-    function SessionAnalytics({ user, workoutsDb, themeColor }) {
-       const weeklyData = useMemo(() => {
-          const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(a.date) - new Date(b.date));
-          const weeksMap = {};
-          
-          userWorkouts.forEach(w => {
-             const d = new Date(w.date);
-             const day = d.getDay();
-             const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-             const monday = new Date(d);
-             monday.setDate(diff);
-             monday.setHours(0,0,0,0);
-             
-             const weekKey = monday.getTime();
-             
-             let vol = 0;
-             Object.values(w.exercises).forEach(exData => {
-                const sets = Array.isArray(exData) ? exData : (exData.sets || []);
-                sets.forEach(s => vol += (parseFloat(s.weight||0) * parseInt(s.reps||0)));
-             });
-             
-             if (!weeksMap[weekKey]) {
-                weeksMap[weekKey] = { date: weekKey, volume: 0 };
-             }
-             weeksMap[weekKey].volume += vol;
-          });
-          
-          return Object.values(weeksMap).map(w => ({ ...w, value: w.volume })).sort((a,b) => a.date - b.date);
-       }, [workoutsDb, user]);
-
-       let currentVol = 0;
-       let prevVol = 0;
-       let percentChange = 0;
-
-       if (weeklyData.length > 0) {
-          currentVol = weeklyData[weeklyData.length - 1].value;
-          if (weeklyData.length > 1) {
-             prevVol = weeklyData[weeklyData.length - 2].value;
-             percentChange = prevVol > 0 ? ((currentVol - prevVol) / prevVol) * 100 : 0;
-          }
-       }
-
-       return (
-          <div className="glass-card rounded-2xl p-5 mb-6">
-             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-white/50 flex items-center uppercase tracking-widest">
-                   <IconTrendingUp size={16} className="mr-2" style={{color: themeColor}} /> Weekly Volume
-                </h3>
-             </div>
-             
-             {weeklyData.length === 0 ? (
-                <div className="text-center text-white/30 text-sm font-mono py-4">NO DATA</div>
-             ) : (
-                <>
-                   <div className="flex justify-between items-end mb-2">
-                      <div>
-                         <div className="text-[10px] text-white/50 font-bold tracking-widest uppercase mb-1">This Week</div>
-                         <div className="text-3xl font-header tracking-wide text-white leading-none">{currentVol.toLocaleString()} <span className="text-sm font-sans text-white/40 tracking-normal">LBS</span></div>
-                      </div>
-                      {weeklyData.length > 1 && (
-                         <div className={`text-sm font-mono font-bold flex items-center ${percentChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%
-                         </div>
-                      )}
-                   </div>
-                   
-                   <GenericLineChart data={weeklyData} strokeColor={themeColor} />
-                </>
-             )}
-          </div>
-       );
-    }
-
     // --- 1-REP MAX ANALYTICS WIDGET ---
     function OneRepMaxAnalytics({ user, workoutsDb, themeColor }) {
         const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(a.date) - new Date(b.date)), [workoutsDb, user]);
@@ -699,6 +625,200 @@
         );
     }
 
+    // --- PROGRESSIVE OVERLOAD HEATMAP ---
+    function ProgressiveOverloadHeatmap({ user, workoutsDb, themeColor }) {
+        const [metric, setMetric] = useState('volume'); // 'volume' or 'rpe'
+
+        const { weeks, matrix, exerciseList } = useMemo(() => {
+            const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            // Extract all unique exercises performed by this user
+            const exercisesSet = new Set();
+            userWorkouts.forEach(w => {
+                if(w.exercises) {
+                    Object.keys(w.exercises).forEach(ex => exercisesSet.add(ex));
+                }
+            });
+            const exercises = Array.from(exercisesSet).sort();
+
+            // Generate last 8 weeks keys (Mondays)
+            const wks = [];
+            const now = new Date();
+            for (let i = 7; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - (i * 7));
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(d.setDate(diff));
+                monday.setHours(0,0,0,0);
+                wks.push(monday.getTime());
+            }
+
+            const dataMatrix = {};
+            exercises.forEach(ex => {
+                dataMatrix[ex] = wks.map(w => ({ week: w, volume: 0, rpeSum: 0, rpeCount: 0, isDeloadFlagged: false }));
+            });
+
+            userWorkouts.forEach(w => {
+                const wDate = new Date(w.date);
+                const day = wDate.getDay();
+                const diff = wDate.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(wDate);
+                monday.setDate(diff);
+                monday.setHours(0,0,0,0);
+                const weekKey = monday.getTime();
+
+                const weekIndex = wks.indexOf(weekKey);
+                if (weekIndex === -1) return; // Outside 8-week window
+
+                if(w.exercises) {
+                    Object.entries(w.exercises).forEach(([exName, exData]) => {
+                        const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                        const rpe = parseFloat(Array.isArray(exData) ? 0 : exData.rpe) || 0;
+                        
+                        let vol = 0;
+                        sets.forEach(s => {
+                            const weight = parseFloat(s.weight) || 0;
+                            const reps = parseInt(s.reps) || 0;
+                            vol += (weight * reps); // Accounts for Barbells, Cables, Kabuki naturally via user load input
+                        });
+
+                        if (dataMatrix[exName] && dataMatrix[exName][weekIndex]) {
+                            dataMatrix[exName][weekIndex].volume += vol;
+                            if (rpe > 0) {
+                                dataMatrix[exName][weekIndex].rpeSum += rpe;
+                                dataMatrix[exName][weekIndex].rpeCount += 1;
+                            }
+                            if (w.isDeload) dataMatrix[exName][weekIndex].isDeloadFlagged = true;
+                        }
+                    });
+                }
+            });
+
+            // Calculate rolling averages and Deload drops
+            exercises.forEach(ex => {
+                const row = dataMatrix[ex];
+                row.forEach((cell, i) => {
+                    cell.rpe = cell.rpeCount > 0 ? (cell.rpeSum / cell.rpeCount) : 0;
+                    
+                    let past4Vol = 0;
+                    let count = 0;
+                    for (let j = 1; j <= 4; j++) {
+                        if (i - j >= 0 && row[i-j].volume > 0) {
+                            past4Vol += row[i-j].volume;
+                            count++;
+                        }
+                    }
+                    const rollingAvg = count > 0 ? past4Vol / count : 0;
+                    // Auto-detect deload: >20% volume drop
+                    cell.isDeload = cell.isDeloadFlagged || (rollingAvg > 0 && cell.volume < rollingAvg * 0.8 && cell.volume > 0); 
+                });
+            });
+
+            // Filter out exercises that have no data within this 8 week block
+            const activeExercises = exercises.filter(ex => {
+                return dataMatrix[ex].some(cell => cell.volume > 0 || cell.rpe > 0);
+            });
+
+            return { weeks: wks, matrix: dataMatrix, exerciseList: activeExercises };
+        }, [workoutsDb, user]);
+
+        return (
+            <div className="glass-card rounded-2xl p-5 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+                    <div>
+                        <h3 className="text-sm font-bold text-white/90 flex items-center uppercase tracking-widest mb-1">
+                           <IconActivity size={16} className="mr-2" style={{color: themeColor}} /> Progressive Overload Map
+                        </h3>
+                        <p className="text-[10px] text-white/50 font-mono tracking-wide">4-Week Rolling Average Deload Detection</p>
+                    </div>
+                    <div className="flex bg-black/50 p-1 rounded-lg border border-white/10 shrink-0">
+                        <button 
+                            onClick={() => setMetric('volume')} 
+                            className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${metric === 'volume' ? 'bg-white text-black shadow-md' : 'text-white/50 hover:text-white'}`}
+                        >
+                            Total Volume
+                        </button>
+                        <button 
+                            onClick={() => setMetric('rpe')} 
+                            className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${metric === 'rpe' ? 'bg-white text-black shadow-md' : 'text-white/50 hover:text-white'}`}
+                        >
+                            Avg RPE
+                        </button>
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto w-full pb-2">
+                   <div className="min-w-[700px]">
+                       <div className="flex mb-2">
+                           <div className="w-36 shrink-0"></div>
+                           {weeks.map((w, i) => (
+                               <div key={i} className="flex-1 text-center text-[9px] font-mono text-white/40 uppercase">
+                                   {new Date(w).toLocaleDateString(undefined, {month: 'numeric', day: 'numeric'})}
+                               </div>
+                           ))}
+                       </div>
+
+                       {exerciseList.length === 0 && <div className="text-center text-white/30 text-xs py-4 font-mono">NO DATA IN 8 WEEK WINDOW</div>}
+
+                       {exerciseList.map(ex => {
+                           const row = matrix[ex];
+                           const maxVal = Math.max(...row.map(c => metric === 'volume' ? c.volume : c.rpe));
+
+                           return (
+                               <div key={ex} className="flex items-center mb-1 group">
+                                   <div className="w-36 shrink-0 text-[10px] font-bold text-white/70 uppercase tracking-widest truncate pr-2" title={ex}>
+                                       {ex}
+                                   </div>
+                                   {row.map((cell, i) => {
+                                       const val = metric === 'volume' ? cell.volume : cell.rpe;
+                                       const intensity = maxVal > 0 ? val / maxVal : 0;
+                                       
+                                       let cellBg = 'bg-black/30';
+                                       let cellBorder = 'border-white/5';
+                                       let rgbColor = user === 'Robby' ? '0, 229, 255' : '0, 242, 173';
+
+                                       if (cell.isDeload && metric === 'volume') {
+                                           cellBg = 'bg-slate-600/80'; // Neutral recovery color
+                                           cellBorder = 'border-slate-400';
+                                       } else if (val > 0) {
+                                           cellBg = `rgba(${rgbColor}, ${Math.max(0.15, intensity)})`;
+                                           if (intensity > 0.8) cellBorder = `rgba(${rgbColor}, 0.8)`;
+                                       }
+
+                                       return (
+                                           <div key={i} className="flex-1 px-[2px]">
+                                               <div 
+                                                   className="h-8 rounded-md border flex items-center justify-center transition-all group-hover:opacity-90 relative"
+                                                   style={{ backgroundColor: cellBg.startsWith('bg') ? undefined : cellBg, borderColor: cellBorder.startsWith('border') ? undefined : cellBorder }}
+                                                   title={`${ex} - ${new Date(cell.week).toLocaleDateString()}: ${val} ${metric === 'volume' ? 'Lbs' : 'RPE'}`}
+                                               >
+                                                   {cell.isDeload && metric === 'volume' && <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white/80">D</div>}
+                                                   {!cell.isDeload && val > 0 && <div className="opacity-0 hover:opacity-100 absolute inset-0 flex items-center justify-center text-[8px] font-mono font-bold bg-black/60 text-white rounded-md transition-opacity cursor-default">{val > 1000 && metric === 'volume' ? (val/1000).toFixed(1)+'k' : val}</div>}
+                                               </div>
+                                           </div>
+                                       )
+                                   })}
+                               </div>
+                           )
+                       })}
+                   </div>
+                </div>
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded bg-slate-600/80 border border-slate-400"></div>
+                        <span className="text-[9px] font-bold text-white/50 uppercase tracking-widest">Deload Detected</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Low</span>
+                        <div className="w-24 h-2 rounded-full bg-gradient-to-r from-black via-[rgba(0,229,255,0.5)] to-[rgba(0,229,255,1)]" style={{backgroundImage: `linear-gradient(to right, #121212, ${themeColor})`}}></div>
+                        <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">High</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // --- ANALYTICS MODAL ---
     function AnalyticsModal({ user, workoutsDb, onClose }) {
         const themeColor = user === 'Robby' ? 'var(--robby-primary)' : 'var(--candice-primary)';
@@ -711,7 +831,7 @@
                     </div>
                     <div className="p-6 overflow-y-auto flex-1 bg-black/20 space-y-6">
                         <OneRepMaxAnalytics user={user} workoutsDb={workoutsDb} themeColor={themeColor} />
-                        <SessionAnalytics user={user} workoutsDb={workoutsDb} themeColor={themeColor} />
+                        <ProgressiveOverloadHeatmap user={user} workoutsDb={workoutsDb} themeColor={themeColor} />
                     </div>
                 </div>
             </div>
@@ -1362,7 +1482,7 @@
     // --- TIMELINE COMPONENT ---
     const PPLTimeline = ({ selected, primary, routineOrder }) => {
       return (
-        <div className="relative flex items-center justify-between w-full mt-4 mb-6 z-10 px-2">
+        <div className="relative flex items-center justify-between w-full mt-2 mb-2 z-10 px-2">
           <div className="absolute top-[5px] left-4 right-4 h-[2px] bg-white/10 -z-10" />
           {routineOrder.map((item) => {
             const isSelected = selected === item;
@@ -1589,15 +1709,15 @@
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             
             {/* --- ROBBY COLUMN --- */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
                {/* Header Graphic (Masculine lifting) */}
-               <div className="relative rounded-2xl overflow-hidden h-32 shadow-2xl glass-card glow-robby" style={{ backgroundImage: `url('${robbyBg}')`, backgroundSize: 'cover', backgroundPosition: 'center 30%' }}>
+               <div className="relative rounded-2xl overflow-hidden h-20 shadow-2xl glass-card glow-robby" style={{ backgroundImage: `url('${robbyBg}')`, backgroundSize: 'cover', backgroundPosition: 'center 30%' }}>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent"></div>
-                  <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
-                     <h2 className="text-4xl md:text-5xl font-header text-white tracking-widest flex items-center leading-none">
+                  <div className="absolute inset-0 p-3 md:p-4 flex flex-col justify-end">
+                     <h2 className="text-3xl md:text-4xl font-header text-white tracking-widest flex items-center leading-none">
                         Robby
                      </h2>
-                     <p className="text-[var(--robby-primary)] font-mono font-bold text-xs mt-1 tracking-widest">HYPERTROPHY PHASE</p>
+                     <p className="text-[var(--robby-primary)] font-mono font-bold text-[10px] mt-0.5 tracking-widest">HYPERTROPHY PHASE</p>
                   </div>
                </div>
 
@@ -1612,15 +1732,15 @@
                </div>
 
                {/* Routine Selector & Start */}
-               <div className="glass-card glow-robby rounded-2xl p-6">
+               <div className="glass-card glow-robby rounded-2xl p-4">
                  
                  {/* Visual Timelines & Macros */}
-                 <div className="flex flex-col mb-6">
+                 <div className="flex flex-col mb-4">
                     <ActivityRings user="Robby" workoutsDb={workoutsDb} primary="var(--robby-primary)" targetCals={2500} />
                     <PPLTimeline selected={robbyRoutine} primary="var(--robby-primary)" routineOrder={robbyRoutines.map(r=>r.id)} />
                  </div>
 
-                 <div className="mb-6 relative z-10">
+                 <div className="mb-4 relative z-10">
                     <div className="flex justify-between items-end mb-2">
                        <label className="text-[10px] text-white/50 font-bold tracking-widest uppercase block">Selected Sequence</label>
                        {robbyRoutine === robbyScheduled 
@@ -1631,14 +1751,14 @@
                     <select 
                        value={robbyRoutine} 
                        onChange={e => setRobbyRoutine(e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xl font-header tracking-widest text-[var(--robby-primary)] outline-none focus:border-[var(--robby-primary)] appearance-none shadow-inner"
+                       className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-3 text-lg font-header tracking-widest text-[var(--robby-primary)] outline-none focus:border-[var(--robby-primary)] appearance-none shadow-inner"
                     >
                        {robbyRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
                     </select>
                  </div>
                  <button 
                    onClick={() => onStart(['Robby'], { Robby: robbyRoutine })} 
-                   className="w-full bg-[var(--robby-primary)] text-black py-4 rounded-xl font-header font-bold text-2xl tracking-widest shadow-[0_0_15px_var(--robby-glow)] btn-press"
+                   className="w-full bg-[var(--robby-primary)] text-black py-2.5 rounded-lg font-header font-bold text-lg tracking-widest shadow-[0_0_15px_var(--robby-glow)] btn-press"
                  >
                    INITIATE SESSION
                  </button>
@@ -1646,15 +1766,15 @@
             </div>
 
             {/* --- CANDICE COLUMN --- */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
                {/* Header Graphic (Feminine lifting/strength) */}
-               <div className="relative rounded-2xl overflow-hidden h-32 shadow-2xl glass-card glow-candice" style={{ backgroundImage: `url('${candiceBg}')`, backgroundSize: 'cover', backgroundPosition: 'center 40%' }}>
+               <div className="relative rounded-2xl overflow-hidden h-20 shadow-2xl glass-card glow-candice" style={{ backgroundImage: `url('${candiceBg}')`, backgroundSize: 'cover', backgroundPosition: 'center 40%' }}>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent"></div>
-                  <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
-                     <h2 className="text-4xl md:text-5xl font-header text-white tracking-widest flex items-center leading-none">
+                  <div className="absolute inset-0 p-3 md:p-4 flex flex-col justify-end">
+                     <h2 className="text-3xl md:text-4xl font-header text-white tracking-widest flex items-center leading-none">
                         Candice
                      </h2>
-                     <p className="text-[var(--candice-primary)] font-mono font-bold text-xs mt-1 tracking-widest">RECOMP & CORE</p>
+                     <p className="text-[var(--candice-primary)] font-mono font-bold text-[10px] mt-0.5 tracking-widest">RECOMP & CORE</p>
                   </div>
                </div>
 
@@ -1669,15 +1789,15 @@
                </div>
 
                {/* Routine Selector & Start */}
-               <div className="glass-card glow-candice rounded-2xl p-6">
+               <div className="glass-card glow-candice rounded-2xl p-4">
                  
                  {/* Visual Timelines & Macros */}
-                 <div className="flex flex-col mb-6">
+                 <div className="flex flex-col mb-4">
                     <ActivityRings user="Candice" workoutsDb={workoutsDb} primary="var(--candice-primary)" targetCals={1500} />
                     <PPLTimeline selected={candiceRoutine} primary="var(--candice-primary)" routineOrder={candiceRoutines.map(r=>r.id)} />
                  </div>
 
-                 <div className="mb-6 relative z-10">
+                 <div className="mb-4 relative z-10">
                     <div className="flex justify-between items-end mb-2">
                        <label className="text-[10px] text-white/50 font-bold tracking-widest uppercase block">Selected Sequence</label>
                        {candiceRoutine === candiceScheduled 
@@ -1688,14 +1808,14 @@
                     <select 
                        value={candiceRoutine} 
                        onChange={e => setCandiceRoutine(e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xl font-header tracking-widest text-[var(--candice-primary)] outline-none focus:border-[var(--candice-primary)] appearance-none shadow-inner"
+                       className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-3 text-lg font-header tracking-widest text-[var(--candice-primary)] outline-none focus:border-[var(--candice-primary)] appearance-none shadow-inner"
                     >
                        {candiceRoutines.map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
                     </select>
                  </div>
                  <button 
                    onClick={() => onStart(['Candice'], { Candice: candiceRoutine })} 
-                   className="w-full bg-[var(--candice-primary)] text-black py-4 rounded-xl font-header font-bold text-2xl tracking-widest shadow-[0_0_15px_var(--candice-glow)] btn-press"
+                   className="w-full bg-[var(--candice-primary)] text-black py-2.5 rounded-lg font-header font-bold text-lg tracking-widest shadow-[0_0_15px_var(--candice-glow)] btn-press"
                  >
                    INITIATE SESSION
                  </button>
@@ -1720,7 +1840,10 @@
                      className={`glass-card rounded-xl p-3 flex flex-col justify-start text-left transition-all h-[200px] group btn-press ${glowClass}`}
                    >
                      <div className="flex justify-between items-start mb-2 w-full">
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 ${themeText}`}>{w.user}</span>
+                        <div className="flex items-center gap-2">
+                           <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 ${themeText}`}>{w.user}</span>
+                           {w.isDeload && <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">Deload</span>}
+                        </div>
                         <span className="text-xs font-mono font-bold text-white/70">{new Date(w.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                      </div>
                      <p className="font-header text-2xl tracking-widest text-white mb-2 leading-none">{w.routineId}</p>
@@ -1915,7 +2038,8 @@
              routineId, 
              exercises: exercisesState,
              cardioType: editSession?.cardioType || '',
-             cardioDuration: editSession?.cardioDuration || ''
+             cardioDuration: editSession?.cardioDuration || '',
+             isDeload: editSession?.isDeload || false
           };
         });
         return initialState;
@@ -1954,7 +2078,8 @@
              routineId: sessionData[username].routineId, 
              exercises: cleanedExercises,
              cardioType: sessionData[username].cardioType,
-             cardioDuration: sessionData[username].cardioDuration
+             cardioDuration: sessionData[username].cardioDuration,
+             isDeload: sessionData[username].isDeload || false
           };
         });
         
@@ -2057,8 +2182,22 @@
                       </div>
                     )}
 
+                    {/* Deload Toggle */}
+                    <div className="mt-4 border-t border-white/10 pt-4 pb-2 flex items-center justify-between">
+                       <div className="flex items-center">
+                          <IconActivity size={16} className={theme.textClass} />
+                          <h3 className="text-md font-header tracking-widest text-white ml-2">Deload Session</h3>
+                       </div>
+                       <button 
+                          onClick={() => setSessionData(prev => ({...prev, [username]: {...prev[username], isDeload: !prev[username].isDeload}}))}
+                          className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${sessionData[username].isDeload ? 'bg-amber-500' : 'bg-black/50 border border-white/10'}`}
+                       >
+                          <div className={`w-4 h-4 rounded-full bg-white transition-transform ${sessionData[username].isDeload ? 'translate-x-7' : 'translate-x-1'}`}></div>
+                       </button>
+                    </div>
+
                     {/* Optional Cardio Block */}
-                    <div className="mt-4 border-t border-white/10 pt-4 pb-4">
+                    <div className="mt-2 border-t border-white/10 pt-4 pb-4">
                        <div className="flex items-center mb-2">
                           <IconActivity size={16} className={theme.textClass} />
                           <h3 className="text-md font-header tracking-widest text-white ml-2">Optional Cardio</h3>
