@@ -1,3 +1,4 @@
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -137,21 +138,21 @@
     const IconSettings = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
 
     // --- CONSTANTS & MAPPINGS ---
-    const ROUTINE_ORDER = ['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
+    const ROUTINE_ORDER =['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
 
     const EXERCISE_MUSCLE_MAP = {
       'Incline DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
       'Flat DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
       'Dips (Bodyweight)': ['Chest', 'Triceps'],
-      'Cross-Body Cable Lateral Raise': ['Side Delts'],
+      'Cross-Body Cable Lateral Raise':['Side Delts'],
       'Overhead Cable Tricep Ext.': ['Triceps'],
       'Chest-Supported DB Row': ['Lats', 'Traps', 'Biceps'],
       'Omni-Grip Lat Pull Down': ['Lats', 'Biceps'],
-      'Dual Cable Reverse Flys': ['Rear Delts', 'Traps'],
+      'Dual Cable Reverse Flys':['Rear Delts', 'Traps'],
       'EZ Bar Preacher Curls': ['Biceps'],
       'DB Hammer Curls': ['Biceps', 'Forearms'],
-      'Transformer Bar Squats': ['Quads', 'Glutes', 'Core_IAP'],
-      'Kabuki Good Mornings': ['Hamstrings', 'Lower Back', 'Glutes'],
+      'Transformer Bar Squats':['Quads', 'Glutes', 'Core_IAP'],
+      'Kabuki Good Mornings':['Hamstrings', 'Lower Back', 'Glutes'],
       'Walking Lunges (KBs)': ['Quads', 'Glutes'],
       'Titan Leg Extensions': ['Quads'],
       'Standing Calf Raises': ['Calves'],
@@ -167,13 +168,13 @@
       'Incline DB Curls': ['Biceps'],
       'Prime Trap Bar RDLs': ['Hamstrings', 'Glutes', 'Lower Back'],
       'Bulgarian Split Squats': ['Quads', 'Glutes'],
-      'Back Extension Machine': ['Lower Back', 'Hamstrings', 'Glutes'],
+      'Back Extension Machine':['Lower Back', 'Hamstrings', 'Glutes'],
       'Leg Extensions': ['Quads'],
       'Seated/Bent Knee Calf Raise': ['Calves'],
-      'Prime Trap Bar Deadlift': ['Quads', 'Glutes', 'Hamstrings', 'Lower Back', 'Core_IAP'],
+      'Prime Trap Bar Deadlift':['Quads', 'Glutes', 'Hamstrings', 'Lower Back', 'Core_IAP'],
       'Titan Leg Curls': ['Hamstrings'],
       'Cable Pull Throughs': ['Glutes', 'Hamstrings'],
-      'Deadbugs': ['Transverse Abdominis'],
+      'Deadbugs':['Transverse Abdominis'],
       'Cable Pallof Press': ['Transverse Abdominis'],
       'Heel Taps': ['Transverse Abdominis', 'Rectus Abdominis']
     };
@@ -198,10 +199,10 @@
     }
 
     // --- DEFAULT ROUTINE DATABASE ---
-    const DEFAULT_ROUTINES = [
+    const DEFAULT_ROUTINES =[
       {
         id: 'Push 1',
-        exercises: [
+        exercises:[
           { name: 'Incline DB Bench Press', targetSets: 4, targetReps: '8-12', notes: '~30 degree incline, deep stretch' },
           { name: 'Flat DB Bench Press', targetSets: 4, targetReps: '8-12', notes: 'Full range of motion' },
           { name: 'Dips (Bodyweight)', targetSets: 3, targetReps: 'AMRAP', notes: 'Lean forward for lower chest' },
@@ -211,7 +212,7 @@
       },
       {
         id: 'Pull 1',
-        exercises: [
+        exercises:[
           { name: 'Chest-Supported DB Row', targetSets: 4, targetReps: '8-12', notes: '45-degree bench, pull elbows wide' },
           { name: 'Omni-Grip Lat Pull Down', targetSets: 3, targetReps: '8-12', notes: 'Neutral grip, stretch at top' },
           { name: 'Dual Cable Reverse Flys', targetSets: 4, targetReps: '12-15', notes: 'Cables at chest height, cross over' },
@@ -221,7 +222,7 @@
       },
       {
         id: 'Legs 1',
-        exercises: [
+        exercises:[
           { name: 'Transformer Bar Squats', targetSets: 4, targetReps: '6-10', notes: 'Maintain upright torso, Drive through mid-foot' },
           { name: 'Kabuki Good Mornings', targetSets: 4, targetReps: '10-12', notes: 'Soft knees, push hips back, feel hamstrings' },
           { name: 'Walking Lunges (KBs)', targetSets: 3, targetReps: '10-12/leg', notes: 'Focus on deep stretch at the bottom' },
@@ -231,7 +232,7 @@
       },
       {
         id: 'Push 2',
-        exercises: [
+        exercises:[
           { name: 'Seated DB Shoulder Press', targetSets: 4, targetReps: '8-12', notes: 'Back supported, strict form' },
           { name: 'Chest-Supported DB Lateral', targetSets: 4, targetReps: '12-15', notes: 'Face forward on high incline bench' },
           { name: 'Low-to-High Cable Crossover', targetSets: 4, targetReps: '12-15', notes: 'Constant tension for upper/inner chest' },
@@ -241,7 +242,7 @@
       },
       {
         id: 'Pull 2',
-        exercises: [
+        exercises:[
           { name: '1-Arm Lat Pull-Ins (Cable)', targetSets: 4, targetReps: '10-12/arm', notes: 'Sit sideways, lateral high angle pull' },
           { name: 'T-Bar Row (Landmine)', targetSets: 4, targetReps: '8-12', notes: 'V-Handle, chest up, squeeze scaps' },
           { name: 'Straight Arm Cable Pullover', targetSets: 3, targetReps: '12-15', notes: 'Focus on lat sweep and deep stretch' },
@@ -251,7 +252,7 @@
       },
       {
         id: 'Legs 2',
-        exercises: [
+        exercises:[
           { name: 'Prime Trap Bar RDLs', targetSets: 4, targetReps: '8-12', notes: 'Hips back, slight knee bend, feel hamstrings' },
           { name: 'Bulgarian Split Squats', targetSets: 3, targetReps: '8-12/leg', notes: 'Deep stretch, torso slightly forward' },
           { name: 'Back Extension Machine', targetSets: 3, targetReps: '10-15', notes: 'Squeeze glutes and hamstrings at top' },
@@ -263,16 +264,16 @@
 
     const CANDICE_CORE = {
       title: "TVA & Deep Core Rebuild",
-      exercises: [
+      exercises:[
         { name: 'Deadbugs', targetSets: 3, targetReps: '10/side', notes: 'Keep lower back glued to the floor. No arching.' },
         { name: 'Cable Pallof Press', targetSets: 3, targetReps: '10/side', notes: 'Anti-rotation. hold for 2s extended.' },
         { name: 'Heel Taps', targetSets: 3, targetReps: '15/side', notes: 'Supine. Move from the hip, maintain braced core.' }
       ]
     };
 
-    const DEFAULT_CARDIO = ['Treadmill', 'Row Machine', 'Rucking / Weighted Walk'];
+    const DEFAULT_CARDIO =['Treadmill', 'Row Machine', 'Rucking / Weighted Walk'];
 
-    const ROBBY_DAILY_IMAGES = [
+    const ROBBY_DAILY_IMAGES =[
        "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1470&auto=format&fit=crop", 
        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1470&auto=format&fit=crop", 
        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop", 
@@ -282,7 +283,7 @@
        "https://images.unsplash.com/photo-1526506114868-456012879590?q=80&w=1470&auto=format&fit=crop"  
     ];
 
-    const CANDICE_DAILY_IMAGES = [
+    const CANDICE_DAILY_IMAGES =[
        "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1470&auto=format&fit=crop", 
        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1470&auto=format&fit=crop", 
        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=1470&auto=format&fit=crop", 
@@ -297,7 +298,7 @@
       const [quote, setQuote] = useState({ text: 'LOADING PROTOCOL...', author: 'SYSTEM' });
 
       useEffect(() => {
-        const FITNESS_QUOTES = [
+        const FITNESS_QUOTES =[
           { text: "Discipline equals freedom.", author: "Jocko Willink" },
           { text: "The last three or four reps is what makes the muscle grow. This area of pain divides a champion from someone who is not a champion.", author: "Arnold Schwarzenegger" },
           { text: "Everybody wants to be a bodybuilder, but don't nobody want to lift no heavy-ass weights.", author: "Ronnie Coleman" },
@@ -317,7 +318,7 @@
         // Pick a random quote on every load
         const randomIndex = Math.floor(Math.random() * FITNESS_QUOTES.length);
         setQuote(FITNESS_QUOTES[randomIndex]);
-      }, []);
+      },[]);
 
       return (
         <div className="glass-card rounded-lg py-2.5 px-4 mb-6 relative overflow-hidden shadow-sm group">
@@ -337,8 +338,8 @@
       const [editBase, setEditBase] = useState('Robby');
       const [editableRoutines, setEditableRoutines] = useState(() => JSON.parse(JSON.stringify(getActiveRoutines('Robby'))));
       const [editableCore, setEditableCore] = useState(() => JSON.parse(JSON.stringify(getCandiceCore())));
-      const [editableCardio, setEditableCardio] = useState(() => [...getCardioOptions()]);
-      const [activeTab, setActiveTab] = useState(0);
+      const[editableCardio, setEditableCardio] = useState(() => [...getCardioOptions()]);
+      const[activeTab, setActiveTab] = useState(0);
       const [deployTarget, setDeployTarget] = useState('Both');
 
       const handleBaseChange = (base) => {
@@ -347,7 +348,7 @@
           setActiveTab(0);
       };
 
-      let currentExercises = [];
+      let currentExercises =[];
       let setCurrentExercises = () => {};
       let sectionTitle = "";
 
@@ -360,7 +361,7 @@
       } else {
           currentExercises = editableRoutines[activeTab]?.exercises || [];
           setCurrentExercises = (newEx) => {
-              const updated = [...editableRoutines];
+              const updated =[...editableRoutines];
               updated[activeTab].exercises = newEx;
               setEditableRoutines(updated);
           };
@@ -422,7 +423,7 @@
                                setEditableCardio(newC);
                            }} className="flex-1 w-full bg-black/40 border border-white/10 rounded py-3 px-4 text-white font-bold focus:border-amber-500 outline-none transition-colors text-sm" placeholder="Cardio Name (e.g., Treadmill)" />
                            <button onClick={() => {
-                               const newC = [...editableCardio];
+                               const newC =[...editableCardio];
                                newC.splice(i, 1);
                                setEditableCardio(newC);
                            }} className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 p-3 rounded-lg transition-colors shrink-0">
@@ -556,7 +557,7 @@
             const exSet = new Set();
             userWorkouts.forEach(w => {
                 Object.entries(w.exercises).forEach(([exName, exData]) => {
-                    const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                    const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
                     if (sets.some(s => parseFloat(s.weight) > 0)) exSet.add(exName);
                 });
             });
@@ -571,11 +572,11 @@
 
         const trendData = useMemo(() => {
             if (!selectedEx) return [];
-            const data = [];
+            const data =[];
             userWorkouts.forEach(w => {
                 const exData = w.exercises[selectedEx];
                 if (!exData) return;
-                const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
                 let max1RM = 0;
                 sets.forEach(s => {
                     const weight = parseFloat(s.weight) || 0;
@@ -642,7 +643,7 @@
             const exercises = Array.from(exercisesSet).sort();
 
             // Generate last 8 weeks keys (Mondays)
-            const wks = [];
+            const wks =[];
             const now = new Date();
             for (let i = 7; i >= 0; i--) {
                 const d = new Date(now);
@@ -673,7 +674,7 @@
 
                 if(w.exercises) {
                     Object.entries(w.exercises).forEach(([exName, exData]) => {
-                        const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                        const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
                         const rpe = parseFloat(Array.isArray(exData) ? 0 : exData.rpe) || 0;
                         
                         let vol = 0;
@@ -844,9 +845,9 @@
       const [customRoutines, setCustomRoutines] = useState({ Robby: null, Candice: null, CandiceCore: null, CardioOptions: null });
       const [loading, setLoading] = useState(true);
       const [activeUsers, setActiveUsers] = useState([]);
-      const [selectedRoutines, setSelectedRoutines] = useState({});
+      const[selectedRoutines, setSelectedRoutines] = useState({});
       const [view, setView] = useState('dashboard');
-      const [savedSession, setSavedSession] = useState(null);
+      const[savedSession, setSavedSession] = useState(null);
       const [editSession, setEditSession] = useState(null);
       const [showPlateCalc, setShowPlateCalc] = useState(false);
       const [showHeatmap, setShowHeatmap] = useState(null);
@@ -945,7 +946,7 @@
            unsubscribeSession();
            unsubscribeRoutines();
         };
-      }, []);
+      },[]);
 
       const getNextWorkoutId = (username) => {
         const userRoutines = getActiveRoutines(username);
@@ -1124,7 +1125,7 @@
           
           const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(b.date) - new Date(a.date));
           
-          const allMuscles = ['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Forearms', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves', 'Rectus Abdominis', 'Transverse Abdominis', 'Core_IAP'];
+          const allMuscles =['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Forearms', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves', 'Rectus Abdominis', 'Transverse Abdominis', 'Core_IAP'];
           allMuscles.forEach(m => map[m] = { fatigue: 0, lastHit: null, rpe: 0 });
 
           userWorkouts.forEach(workout => {
@@ -1135,7 +1136,7 @@
 
              Object.entries(workout.exercises).forEach(([exName, exData]) => {
                 const rpe = parseFloat(exData.rpe) || 7; 
-                const muscles = EXERCISE_MUSCLE_MAP[exName] || [];
+                const muscles = EXERCISE_MUSCLE_MAP[exName] ||[];
                 
                 muscles.forEach(muscle => {
                    if (map[muscle] && map[muscle].lastHit === null) {
@@ -1286,7 +1287,7 @@
        const [target, setTarget] = useState('');
        const [barWeight, setBarWeight] = useState(45);
 
-       const barbells = [
+       const barbells =[
           { name: 'Standard Olympic', weight: 45 },
           { name: 'Candice Barbell', weight: 35 },
           { name: 'Short Bar', weight: 35 },
@@ -1306,13 +1307,13 @@
 
        const loadedPlates = useMemo(() => {
           const t = parseFloat(target);
-          if (!t || isNaN(t) || t <= barWeight) return [];
+          if (!t || isNaN(t) || t <= barWeight) return[];
           
           let remaining = (t - barWeight) / 2;
           remaining = Math.round(remaining * 100) / 100;
           
-          const available = [45, 35, 25, 10, 5, 2.5, 1.25];
-          const plates = [];
+          const available =[45, 35, 25, 10, 5, 2.5, 1.25];
+          const plates =[];
           
           for (let p of available) {
              while (remaining >= p) {
@@ -1410,7 +1411,7 @@
           
           let cals = 0;
           let totalFatigue = 0;
-          const allMuscles = ['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves'];
+          const allMuscles =['Chest', 'Front Delts', 'Side Delts', 'Rear Delts', 'Triceps', 'Biceps', 'Lats', 'Traps', 'Lower Back', 'Quads', 'Hamstrings', 'Glutes', 'Calves'];
           const lastHitMap = {};
           
           const liftBurn = isRobby ? 450 : 300;
@@ -1428,7 +1429,7 @@
 
              Object.entries(workout.exercises).forEach(([exName, exData]) => {
                 const rpe = parseFloat(exData.rpe) || 7; 
-                const muscles = EXERCISE_MUSCLE_MAP[exName] || [];
+                const muscles = EXERCISE_MUSCLE_MAP[exName] ||[];
                 muscles.forEach(muscle => {
                    if (allMuscles.includes(muscle) && !lastHitMap[muscle]) {
                       lastHitMap[muscle] = true;
@@ -1504,7 +1505,7 @@
 
     // --- EXCEL-STYLE WORKBOOK SPREADSHEET MODAL ---
     function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, getActiveRoutines }) {
-       const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow), [workoutsDb, userToShow]);
+       const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow),[workoutsDb, userToShow]);
        const activeRoutines = getActiveRoutines(userToShow);
        const routineOrder = activeRoutines.map(r => r.id);
        
@@ -1560,7 +1561,7 @@
                          const rows = exercises.map(exName => {
                             const cells = sessions.map(s => {
                                const exData = s.exercises[exName];
-                               const sets = Array.isArray(exData) ? exData : (exData?.sets || []);
+                               const sets = Array.isArray(exData) ? exData : (exData?.sets ||[]);
 
                                if (!sets || sets.length === 0) return '-';
                                const allSame = sets.every(set => set.weight === sets[0].weight && set.reps === sets[0].reps);
@@ -1590,10 +1591,13 @@
                                         <tr>
                                            <th className="px-3 py-2 font-bold text-white/60 text-[10px] uppercase tracking-widest border border-white/10 sticky top-[45px] left-0 bg-[#111] z-30 shadow-[2px_2px_5px_rgba(0,0,0,0.5)]">Exercise</th>
                                            {dates.map(d => (
-                                              <th key={d.id} className="px-3 py-2 font-bold text-white/60 text-xs uppercase tracking-widest border border-white/10 text-center sticky top-[45px] bg-[#151515] z-20 shadow-[0_2px_5px_rgba(0,0,0,0.5)] cursor-pointer hover:bg-[#222]" onClick={() => onEditSession(d.session)}>
-                                                 <div className="flex items-center justify-center gap-1 group">
-                                                    <span className="font-mono text-white/80">{d.dateStr}</span>
-                                                    <IconEdit size={10} className="opacity-0 group-hover:opacity-100 text-white/50 transition-opacity"/>
+                                              <th key={d.id} className={`px-3 py-2 font-bold text-xs uppercase tracking-widest border border-white/10 text-center sticky top-[45px] z-20 shadow-[0_2px_5px_rgba(0,0,0,0.5)] cursor-pointer transition-colors ${d.session.isDeload ? 'bg-emerald-900/40 text-emerald-400 hover:bg-emerald-800/50' : 'text-white/60 bg-[#151515] hover:bg-[#222]'}`} onClick={() => onEditSession(d.session)}>
+                                                 <div className="flex flex-col items-center justify-center group">
+                                                    <div className="flex items-center gap-1">
+                                                       <span className={`font-mono ${d.session.isDeload ? 'text-emerald-400' : 'text-white/80'}`}>{d.dateStr}</span>
+                                                       <IconEdit size={10} className="opacity-0 group-hover:opacity-100 text-white/50 transition-opacity"/>
+                                                    </div>
+                                                    {d.session.isDeload && <span className="text-[8px] bg-emerald-500/20 px-1 rounded text-emerald-300 mt-0.5 border border-emerald-500/30 leading-none py-[2px]">DELOAD</span>}
                                                  </div>
                                               </th>
                                            ))}
@@ -1606,7 +1610,7 @@
                                                  {row.exercise}
                                               </td>
                                               {row.cells.map((cell, cIdx) => (
-                                                 <td key={cIdx} className={`px-3 py-2.5 font-mono text-xs border border-white/10 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/50 group-hover:text-white'}`}>
+                                                 <td key={cIdx} className={`px-3 py-2.5 font-mono text-xs border border-white/10 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/50 group-hover:text-white'} ${sessions[cIdx].isDeload ? 'bg-emerald-900/20' : ''}`}>
                                                     {cell}
                                                  </td>
                                               ))}
@@ -1626,15 +1630,74 @@
     }
 
     function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, onEditSession, onTogglePlateCalc, onToggleHeatmap, onToggleTrends, forceRefresh, getActiveRoutines, onEditProtocol }) {
+      const getAlerts = (user) => {
+          const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(b.date) - new Date(a.date));
+          const alerts =[];
+          if (userWorkouts.length === 0) return alerts;
+
+          // 1. Deload Alert
+          let sessionsSinceDeload = 0;
+          for (let w of userWorkouts) {
+              if (w.isDeload) break;
+              sessionsSinceDeload++;
+          }
+          if (sessionsSinceDeload >= 24) {
+              alerts.push({ type: 'deload', msg: 'Deload Week Due (4 Cycles Completed)' });
+          }
+
+          // 2. Rest Day Alert
+          const userDates =[...new Set(userWorkouts.map(w => {
+              const d = new Date(w.date);
+              return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          }))];
+          
+          let streak = 0;
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+          const workedOutToday = userDates.includes(todayStr);
+
+          let checkDate = new Date(today);
+          if (!workedOutToday) {
+              checkDate.setDate(checkDate.getDate() - 1);
+          }
+
+          while (true) {
+              const checkStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+              if (userDates.includes(checkStr)) {
+                  streak++;
+                  checkDate.setDate(checkDate.getDate() - 1);
+              } else {
+                  break;
+              }
+          }
+
+          if (streak >= 6) {
+              if (workedOutToday) {
+                  if (streak === 6) {
+                      alerts.push({ type: 'rest', msg: '6-Day Streak Completed. Scheduled Rest Day Tomorrow.' });
+                  } else {
+                      alerts.push({ type: 'rest', msg: `Rest Day Overdue! (${streak} Days Straight). Take a break.` });
+                  }
+              } else {
+                  alerts.push({ type: 'rest', msg: 'Scheduled Rest Day Today. Enjoy your recovery.' });
+              }
+          }
+
+          return alerts;
+      };
+
       const robbyRoutines = getActiveRoutines('Robby');
       const candiceRoutines = getActiveRoutines('Candice');
 
-      const [robbyScheduled, setRobbyScheduled] = useState(getNextWorkoutId('Robby'));
-      const [candiceScheduled, setCandiceScheduled] = useState(getNextWorkoutId('Candice'));
+      const[robbyScheduled, setRobbyScheduled] = useState(getNextWorkoutId('Robby'));
+      const[candiceScheduled, setCandiceScheduled] = useState(getNextWorkoutId('Candice'));
       const [robbyRoutine, setRobbyRoutine] = useState(robbyScheduled);
       const [candiceRoutine, setCandiceRoutine] = useState(candiceScheduled);
       const [showSpreadsheet, setShowSpreadsheet] = useState(null); 
       const [selectedHistory, setSelectedHistory] = useState(null);
+
+      const robbyAlerts = getAlerts('Robby');
+      const candiceAlerts = getAlerts('Candice');
 
       const dayOfWeek = new Date().getDay();
       const robbyBg = ROBBY_DAILY_IMAGES[dayOfWeek];
@@ -1650,7 +1713,7 @@
          const cNext = getNextWorkoutId('Candice');
          setCandiceScheduled(cNext);
          setCandiceRoutine(cNext);
-      }, [workoutsDb, candiceRoutines]);
+      },[workoutsDb, candiceRoutines]);
 
       return (
         <div className="max-w-[1400px] mx-auto">
@@ -1721,8 +1784,20 @@
                   </div>
                </div>
 
+               {/* Alerts */}
+               {robbyAlerts.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                     {robbyAlerts.map((alert, i) => (
+                        <div key={i} className={`px-3 py-2.5 rounded-xl border text-[11px] font-bold tracking-widest uppercase flex items-center shadow-lg ${alert.type === 'deload' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'}`}>
+                           <IconInfo size={16} className="mr-2 shrink-0" /> 
+                           <span className="leading-tight">{alert.msg}</span>
+                        </div>
+                     ))}
+                  </div>
+               )}
+
                {/* Quick Links Row */}
-               <div className="flex gap-3 mb-1">
+               <div className="flex gap-3 mb-1 mt-1">
                   <button onClick={() => onToggleHeatmap('Robby')} className="flex-1 glass-card hover:bg-white/5 rounded-xl py-3 text-xs md:text-sm font-bold text-[var(--robby-primary)] transition-colors flex items-center justify-center btn-press">
                      <IconActivity size={18} className="mr-2" /> Recovery Map
                   </button>
@@ -1778,8 +1853,20 @@
                   </div>
                </div>
 
+               {/* Alerts */}
+               {candiceAlerts.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                     {candiceAlerts.map((alert, i) => (
+                        <div key={i} className={`px-3 py-2.5 rounded-xl border text-[11px] font-bold tracking-widest uppercase flex items-center shadow-lg ${alert.type === 'deload' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'}`}>
+                           <IconInfo size={16} className="mr-2 shrink-0" /> 
+                           <span className="leading-tight">{alert.msg}</span>
+                        </div>
+                     ))}
+                  </div>
+               )}
+
                {/* Quick Links Row */}
-               <div className="flex gap-3 mb-1">
+               <div className="flex gap-3 mb-1 mt-1">
                   <button onClick={() => onToggleHeatmap('Candice')} className="flex-1 glass-card hover:bg-white/5 rounded-xl py-3 text-xs md:text-sm font-bold text-[var(--candice-primary)] transition-colors flex items-center justify-center btn-press">
                      <IconActivity size={18} className="mr-2" /> Recovery Map
                   </button>
@@ -1831,18 +1918,27 @@
               {workoutsDb.slice(0, 4).map((w, i) => {
                  const isRobby = w.user === 'Robby';
                  const themeText = isRobby ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
-                 const glowClass = isRobby ? 'hover:shadow-[0_0_15px_var(--robby-glow)] hover:border-[var(--robby-primary)]' : 'hover:shadow-[0_0_15px_var(--candice-glow)] hover:border-[var(--candice-primary)]';
+                 
+                 let baseCardClass = 'glass-card border-white/5';
+                 let hoverGlowClass = isRobby 
+                     ? 'hover:shadow-[0_0_15px_var(--robby-glow)] hover:border-[var(--robby-primary)]' 
+                     : 'hover:shadow-[0_0_15px_var(--candice-glow)] hover:border-[var(--candice-primary)]';
+                     
+                 if (w.isDeload) {
+                     baseCardClass = 'bg-emerald-900/20 border border-emerald-500/30 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.2)]';
+                     hoverGlowClass = 'hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:border-emerald-500/50';
+                 }
 
                  return (
                    <button 
                      key={w.id} 
                      onClick={() => setSelectedHistory(w)}
-                     className={`glass-card rounded-xl p-3 flex flex-col justify-start text-left transition-all h-[200px] group btn-press ${glowClass}`}
+                     className={`${baseCardClass} rounded-xl p-3 flex flex-col justify-start text-left transition-all h-[200px] group btn-press ${hoverGlowClass}`}
                    >
                      <div className="flex justify-between items-start mb-2 w-full">
                         <div className="flex items-center gap-2">
                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 ${themeText}`}>{w.user}</span>
-                           {w.isDeload && <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">Deload</span>}
+                           {w.isDeload && <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Deload</span>}
                         </div>
                         <span className="text-xs font-mono font-bold text-white/70">{new Date(w.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                      </div>
@@ -1879,7 +1975,7 @@
             </div>
           </div>
 
-          {/* Modals remain mostly identical in layout but adopt glass-card classes */}
+          {/* Modals */}
           {showSpreadsheet && (
               <SpreadsheetModal 
                   workoutsDb={workoutsDb} 
@@ -1903,6 +1999,7 @@
                                {selectedHistory.user}
                             </span>
                             <h3 className="text-2xl font-header tracking-widest text-white leading-none mt-1">{selectedHistory.routineId}</h3>
+                            {selectedHistory.isDeload && <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border border-emerald-500/30 ml-2 mt-1">Deload</span>}
                          </div>
                          <p className="text-xs font-mono text-white/40">{new Date(selectedHistory.date).toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
@@ -1910,7 +2007,7 @@
                    </div>
                    <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
                       {Object.entries(selectedHistory.exercises).map(([exName, exData]) => {
-                         const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                         const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
                          const note = Array.isArray(exData) ? '' : (exData.note || '');
                          const recW = Array.isArray(exData) ? '' : (exData.recWeight || '');
                          const recR = Array.isArray(exData) ? '' : (exData.recReps || '');
@@ -2190,7 +2287,7 @@
                        </div>
                        <button 
                           onClick={() => setSessionData(prev => ({...prev, [username]: {...prev[username], isDeload: !prev[username].isDeload}}))}
-                          className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${sessionData[username].isDeload ? 'bg-amber-500' : 'bg-black/50 border border-white/10'}`}
+                          className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${sessionData[username].isDeload ? 'bg-emerald-500' : 'bg-black/50 border border-white/10'}`}
                        >
                           <div className={`w-4 h-4 rounded-full bg-white transition-transform ${sessionData[username].isDeload ? 'translate-x-7' : 'translate-x-1'}`}></div>
                        </button>
@@ -2269,7 +2366,7 @@
         for (const session of userHistory) {
           if (session.exercises && session.exercises[exercise.name]) {
             const exData = session.exercises[exercise.name];
-            const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+            const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
             return { date: session.date, sets };
           }
         }
@@ -2432,3 +2529,4 @@
   </script>
 </body>
 </html>
+```
