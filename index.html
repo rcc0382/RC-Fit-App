@@ -132,6 +132,7 @@
     const IconTable = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="21"></line><line x1="15" y1="9" x2="15" y2="21"></line></svg>;
     const IconLightbulb = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2v1"></path><path d="M12 11v1"></path><path d="M19 11h1"></path><path d="M4 11H3"></path><path d="M17 5l-1 1"></path><path d="M8 6L7 5"></path><path d="M12 15c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z"></path></svg>;
     const IconEdit = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
+    const IconTrash = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>;
     const IconCalculator = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="2" x2="8" y2="4"></line><line x1="16" y1="2" x2="16" y2="4"></line><line x1="4" y1="10" x2="20" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>;
     const IconActivity = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
     const IconQuote = ({size=24, className=""}) => <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1.5.5 1.5 1.5L5 15c0 3-2 6-2 6z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.5c0 1-.5 1.5-1.5 1.5-.5 0-1 .5-1 1.5L17 15c0 3-2 6-2 6z"></path></svg>;
@@ -141,12 +142,12 @@
     const ROUTINE_ORDER =['Push 1', 'Pull 1', 'Legs 1', 'Push 2', 'Pull 2', 'Legs 2'];
 
     const EXERCISE_MUSCLE_MAP = {
-      'Incline DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
-      'Flat DB Bench Press': ['Chest', 'Front Delts', 'Triceps'],
+      'Incline DB Bench Press':['Chest', 'Front Delts', 'Triceps'],
+      'Flat DB Bench Press':['Chest', 'Front Delts', 'Triceps'],
       'Dips (Bodyweight)': ['Chest', 'Triceps'],
       'Cross-Body Cable Lateral Raise':['Side Delts'],
       'Overhead Cable Tricep Ext.': ['Triceps'],
-      'Chest-Supported DB Row': ['Lats', 'Traps', 'Biceps'],
+      'Chest-Supported DB Row':['Lats', 'Traps', 'Biceps'],
       'Omni-Grip Lat Pull Down': ['Lats', 'Biceps'],
       'Dual Cable Reverse Flys':['Rear Delts', 'Traps'],
       'EZ Bar Preacher Curls': ['Biceps'],
@@ -156,27 +157,27 @@
       'Walking Lunges (KBs)': ['Quads', 'Glutes'],
       'Titan Leg Extensions': ['Quads'],
       'Standing Calf Raises': ['Calves'],
-      'Seated DB Shoulder Press': ['Front Delts', 'Triceps'],
+      'Seated DB Shoulder Press':['Front Delts', 'Triceps'],
       'Chest-Supported DB Lateral': ['Side Delts'],
       'Low-to-High Cable Crossover': ['Chest'],
       'Flat Bench DB Flys': ['Chest'],
       'Rope Tricep Pushdowns': ['Triceps'],
       '1-Arm Lat Pull-Ins (Cable)': ['Lats'],
-      'T-Bar Row (Landmine)': ['Lats', 'Traps', 'Lower Back', 'Core_IAP'],
-      'Straight Arm Cable Pullover': ['Lats', 'Triceps'],
+      'T-Bar Row (Landmine)':['Lats', 'Traps', 'Lower Back', 'Core_IAP'],
+      'Straight Arm Cable Pullover':['Lats', 'Triceps'],
       'Prime Trap Bar Shrugs': ['Traps'],
       'Incline DB Curls': ['Biceps'],
-      'Prime Trap Bar RDLs': ['Hamstrings', 'Glutes', 'Lower Back'],
+      'Prime Trap Bar RDLs':['Hamstrings', 'Glutes', 'Lower Back'],
       'Bulgarian Split Squats': ['Quads', 'Glutes'],
       'Back Extension Machine':['Lower Back', 'Hamstrings', 'Glutes'],
-      'Leg Extensions': ['Quads'],
+      'Leg Extensions':['Quads'],
       'Seated/Bent Knee Calf Raise': ['Calves'],
       'Prime Trap Bar Deadlift':['Quads', 'Glutes', 'Hamstrings', 'Lower Back', 'Core_IAP'],
       'Titan Leg Curls': ['Hamstrings'],
-      'Cable Pull Throughs': ['Glutes', 'Hamstrings'],
+      'Cable Pull Throughs':['Glutes', 'Hamstrings'],
       'Deadbugs':['Transverse Abdominis'],
       'Cable Pallof Press': ['Transverse Abdominis'],
-      'Heel Taps': ['Transverse Abdominis', 'Rectus Abdominis']
+      'Heel Taps':['Transverse Abdominis', 'Rectus Abdominis']
     };
 
     // Helper function to map an exercise to an appropriate Unsplash thumbnail image
@@ -359,7 +360,7 @@
           setCurrentExercises = (newEx) => setEditableCore({ ...editableCore, exercises: newEx });
           sectionTitle = "CANDICE CORE SEQUENCE";
       } else {
-          currentExercises = editableRoutines[activeTab]?.exercises || [];
+          currentExercises = editableRoutines[activeTab]?.exercises ||[];
           setCurrentExercises = (newEx) => {
               const updated =[...editableRoutines];
               updated[activeTab].exercises = newEx;
@@ -418,7 +419,7 @@
                     {editableCardio.map((c, i) => (
                        <div key={i} className="flex gap-2 items-center bg-black/60 border border-white/5 rounded-xl p-3">
                            <input type="text" value={c} onChange={e => {
-                               const newC = [...editableCardio];
+                               const newC =[...editableCardio];
                                newC[i] = e.target.value;
                                setEditableCardio(newC);
                            }} className="flex-1 w-full bg-black/40 border border-white/10 rounded py-3 px-4 text-white font-bold focus:border-amber-500 outline-none transition-colors text-sm" placeholder="Cardio Name (e.g., Treadmill)" />
@@ -463,7 +464,7 @@
                              <div className="w-20 shrink-0">
                                 <label className="text-[10px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Sets</label>
                                 <input type="number" value={ex.targetSets} onChange={e => {
-                                   const updated = [...currentExercises];
+                                   const updated =[...currentExercises];
                                    updated[exIdx].targetSets = parseInt(e.target.value) || 0;
                                    setCurrentExercises(updated);
                                 }} className="w-full bg-black/40 border border-white/10 rounded py-2 px-2 text-white font-mono text-center focus:border-indigo-500 outline-none transition-colors text-sm" />
@@ -483,7 +484,7 @@
                              <div className="flex-1">
                                 <label className="text-[10px] text-white/40 font-bold tracking-widest uppercase mb-1 block">Cues / Notes</label>
                                 <input type="text" value={ex.notes} onChange={e => {
-                                   const updated = [...currentExercises];
+                                   const updated =[...currentExercises];
                                    updated[exIdx].notes = e.target.value;
                                    setCurrentExercises(updated);
                                 }} className="w-full bg-black/40 border border-white/10 rounded py-2 px-3 text-white/80 text-xs focus:border-indigo-500 outline-none transition-colors" placeholder="Form cues..." />
@@ -551,7 +552,7 @@
 
     // --- 1-REP MAX ANALYTICS WIDGET ---
     function OneRepMaxAnalytics({ user, workoutsDb, themeColor }) {
-        const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(a.date) - new Date(b.date)), [workoutsDb, user]);
+        const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(a.date) - new Date(b.date)),[workoutsDb, user]);
 
         const exercisesList = useMemo(() => {
             const exSet = new Set();
@@ -842,15 +843,15 @@
     // --- MAIN APP COMPONENT ---
     function App() {
       const [workoutsDb, setWorkoutsDb] = useState([]);
-      const [customRoutines, setCustomRoutines] = useState({ Robby: null, Candice: null, CandiceCore: null, CardioOptions: null });
+      const[customRoutines, setCustomRoutines] = useState({ Robby: null, Candice: null, CandiceCore: null, CardioOptions: null });
       const [loading, setLoading] = useState(true);
-      const [activeUsers, setActiveUsers] = useState([]);
+      const[activeUsers, setActiveUsers] = useState([]);
       const[selectedRoutines, setSelectedRoutines] = useState({});
       const [view, setView] = useState('dashboard');
       const[savedSession, setSavedSession] = useState(null);
       const [editSession, setEditSession] = useState(null);
       const [showPlateCalc, setShowPlateCalc] = useState(false);
-      const [showHeatmap, setShowHeatmap] = useState(null);
+      const[showHeatmap, setShowHeatmap] = useState(null);
       const [showTrends, setShowTrends] = useState(null);
 
       // Helper to dynamically pull the right routine array
@@ -1019,6 +1020,17 @@
         setEditSession(null);
       };
 
+      const handleDeleteSession = async (sessionId) => {
+          if (window.confirm("WARNING: Are you sure you want to permanently delete this logged session?")) {
+              try {
+                  await db.collection(`artifacts/${appId}/public/data/workouts`).doc(sessionId).delete();
+              } catch (err) {
+                  console.error("Error deleting session:", err);
+                  alert("Failed to delete session from cloud.");
+              }
+          }
+      };
+
       const handleCancelWorkout = () => {
          if (!editSession) clearSavedSession();
          setView('dashboard');
@@ -1076,6 +1088,7 @@
                savedSession={savedSession}
                onResume={resumeWorkout}
                onEditSession={startEditWorkout}
+               onDeleteSession={handleDeleteSession}
                onTogglePlateCalc={() => setShowPlateCalc(true)}
                onToggleHeatmap={(user) => setShowHeatmap(user)}
                onToggleTrends={(user) => setShowTrends(user)}
@@ -1152,7 +1165,7 @@
           });
 
           return map;
-       }, [workoutsDb, user]);
+       },[workoutsDb, user]);
 
        const getColor = (fatigue) => {
           if (fatigue > 75) return '#ef4444'; // Red
@@ -1284,7 +1297,7 @@
 
     // --- VISUAL PLATE LOADER COMPONENT ---
     function PlateLoaderModal({ onClose }) {
-       const [target, setTarget] = useState('');
+       const[target, setTarget] = useState('');
        const [barWeight, setBarWeight] = useState(45);
 
        const barbells =[
@@ -1445,7 +1458,7 @@
               currentCals: cals,
               averageFatigue: Math.min(100, Math.round(totalFatigue / allMuscles.length))
           };
-       }, [workoutsDb, user, isRobby]);
+       },[workoutsDb, user, isRobby]);
        
        const outerCircumference = 251;
        const innerCircumference = 163;
@@ -1503,8 +1516,8 @@
       )
     }
 
-    // --- EXCEL-STYLE WORKBOOK SPREADSHEET MODAL ---
-    function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, getActiveRoutines }) {
+    // --- STREAMLINED EXCEL-STYLE SPREADSHEET MODAL ---
+    function SpreadsheetModal({ workoutsDb, userToShow, onClose, onEditSession, onDeleteSession, getActiveRoutines }) {
        const userWorkouts = useMemo(() => workoutsDb.filter(w => w.user === userToShow),[workoutsDb, userToShow]);
        const activeRoutines = getActiveRoutines(userToShow);
        const routineOrder = activeRoutines.map(r => r.id);
@@ -1516,19 +1529,19 @@
              const idxB = routineOrder.indexOf(b);
              return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
           });
-       }, [userWorkouts, routineOrder]);
+       },[userWorkouts, routineOrder]);
 
        const themeText = userToShow === 'Robby' ? 'text-[var(--robby-primary)]' : 'text-[var(--candice-primary)]';
 
        return (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[60] p-2 sm:p-6" onClick={onClose}>
-             <div className="glass-card rounded-xl w-full max-w-[95vw] max-h-[95vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 shrink-0">
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[60] p-1 sm:p-6" onClick={onClose}>
+             <div className="glass-card rounded-xl w-full max-w-[98vw] max-h-[98vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="p-3 border-b border-white/10 flex justify-between items-center bg-black/40 shrink-0">
                    <div>
-                      <h2 className="text-2xl font-header tracking-wide text-white flex items-center"><IconTable size={20} className={`mr-3 ${themeText}`}/> {userToShow}'s Log Report</h2>
-                      <p className="text-[10px] font-mono text-white/50 mt-1 uppercase tracking-widest">Click any date column header to edit</p>
+                      <h2 className="text-xl font-header tracking-wide text-white flex items-center"><IconTable size={18} className={`mr-2 ${themeText}`}/> {userToShow}'s Log Report</h2>
+                      <p className="text-[9px] font-mono text-white/50 mt-0.5 uppercase tracking-widest">Tap Edit/Trash on column headers</p>
                    </div>
-                   <button onClick={onClose} className="text-white/50 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={18} /></button>
+                   <button onClick={onClose} className="text-white/50 hover:text-white bg-black/50 p-2 rounded-full transition-colors btn-press"><IconX size={16} /></button>
                 </div>
                 
                 <div className="overflow-auto flex-1 p-0 bg-black/20 pb-12 relative">
@@ -1581,23 +1594,28 @@
                          }
 
                          return (
-                            <div key={routineName} className="mb-8">
-                               <div className="bg-[#0a0a0a] p-3 border-y border-white/10 sticky top-0 z-40 shadow-md">
-                                  <h3 className="text-lg font-header text-white tracking-widest">{routineName}</h3>
+                            <div key={routineName} className="mb-6">
+                               <div className="bg-[#0a0a0a] px-2 py-1.5 border-y border-white/10 sticky top-0 z-40 shadow-md h-[30px] flex items-center">
+                                  <h3 className="text-sm font-header text-white tracking-widest leading-none mt-[2px]">{routineName}</h3>
                                </div>
                                <div className="w-full">
-                                  <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
+                                  <table className="w-full text-left border-collapse text-[10px] whitespace-nowrap">
                                      <thead>
                                         <tr>
-                                           <th className="px-3 py-2 font-bold text-white/60 text-[10px] uppercase tracking-widest border border-white/10 sticky top-[45px] left-0 bg-[#111] z-30 shadow-[2px_2px_5px_rgba(0,0,0,0.5)]">Exercise</th>
+                                           <th className="px-2 py-1 font-bold text-white/60 text-[9px] uppercase tracking-widest border border-white/10 sticky top-[30px] left-0 bg-[#111] z-30 shadow-[2px_2px_5px_rgba(0,0,0,0.5)]">Exercise</th>
                                            {dates.map(d => (
-                                              <th key={d.id} className={`px-3 py-2 font-bold text-xs uppercase tracking-widest border border-white/10 text-center sticky top-[45px] z-20 shadow-[0_2px_5px_rgba(0,0,0,0.5)] cursor-pointer transition-colors ${d.session.isDeload ? 'bg-emerald-900/40 text-emerald-400 hover:bg-emerald-800/50' : 'text-white/60 bg-[#151515] hover:bg-[#222]'}`} onClick={() => onEditSession(d.session)}>
-                                                 <div className="flex flex-col items-center justify-center group">
-                                                    <div className="flex items-center gap-1">
-                                                       <span className={`font-mono ${d.session.isDeload ? 'text-emerald-400' : 'text-white/80'}`}>{d.dateStr}</span>
-                                                       <IconEdit size={10} className="opacity-0 group-hover:opacity-100 text-white/50 transition-opacity"/>
+                                              <th key={d.id} className={`px-1 py-1 border border-white/10 text-center sticky top-[30px] z-20 shadow-[0_2px_5px_rgba(0,0,0,0.5)] min-w-[75px] ${d.session.isDeload ? 'bg-emerald-900/40' : 'bg-[#151515]'}`}>
+                                                 <div className="flex flex-col items-center justify-center">
+                                                    <span className={`font-mono text-[10px] ${d.session.isDeload ? 'text-emerald-400' : 'text-white/80'}`}>{d.dateStr}</span>
+                                                    {d.session.isDeload && <span className="text-[7px] bg-emerald-500/20 px-1 rounded text-emerald-300 mt-[2px] border border-emerald-500/30 leading-none py-[2px] uppercase tracking-widest font-bold">Deload</span>}
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                       <button onClick={() => onEditSession(d.session)} className="text-blue-400/50 hover:text-blue-400 transition-colors p-0.5" title="Edit Session">
+                                                          <IconEdit size={10} />
+                                                       </button>
+                                                       <button onClick={() => onDeleteSession(d.id)} className="text-red-500/50 hover:text-red-500 transition-colors p-0.5" title="Delete Session">
+                                                          <IconTrash size={10} />
+                                                       </button>
                                                     </div>
-                                                    {d.session.isDeload && <span className="text-[8px] bg-emerald-500/20 px-1 rounded text-emerald-300 mt-0.5 border border-emerald-500/30 leading-none py-[2px]">DELOAD</span>}
                                                  </div>
                                               </th>
                                            ))}
@@ -1606,11 +1624,11 @@
                                      <tbody>
                                         {rows.map((row, idx) => (
                                            <tr key={idx} className={`even:bg-white/[0.02] hover:bg-white/10 transition-colors group ${row.isCardio ? 'border-t-2 border-white/20 bg-white/5' : ''}`}>
-                                              <td className={`px-3 py-2.5 font-medium border border-white/10 sticky left-0 bg-[#151515] group-hover:bg-[#222] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.5)] max-w-[180px] truncate ${row.isCardio ? themeText : 'text-white/90'}`} title={row.exercise}>
+                                              <td className={`px-2 py-1.5 font-medium border border-white/10 sticky left-0 bg-[#151515] group-hover:bg-[#222] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.5)] max-w-[130px] truncate text-[10px] ${row.isCardio ? themeText : 'text-white/90'}`} title={row.exercise}>
                                                  {row.exercise}
                                               </td>
                                               {row.cells.map((cell, cIdx) => (
-                                                 <td key={cIdx} className={`px-3 py-2.5 font-mono text-xs border border-white/10 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/50 group-hover:text-white'} ${sessions[cIdx].isDeload ? 'bg-emerald-900/20' : ''}`}>
+                                                 <td key={cIdx} className={`px-1.5 py-1 font-mono text-[10px] border border-white/10 text-center transition-colors ${row.isCardio ? 'text-white/80' : 'text-white/50 group-hover:text-white'} ${sessions[cIdx].isDeload ? 'bg-emerald-900/20' : ''}`}>
                                                     {cell}
                                                  </td>
                                               ))}
@@ -1629,7 +1647,7 @@
        );
     }
 
-    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, onEditSession, onTogglePlateCalc, onToggleHeatmap, onToggleTrends, forceRefresh, getActiveRoutines, onEditProtocol }) {
+    function Dashboard({ workoutsDb, onStart, getNextWorkoutId, savedSession, onResume, onEditSession, onDeleteSession, onTogglePlateCalc, onToggleHeatmap, onToggleTrends, forceRefresh, getActiveRoutines, onEditProtocol }) {
       const getAlerts = (user) => {
           const userWorkouts = workoutsDb.filter(w => w.user === user).sort((a,b) => new Date(b.date) - new Date(a.date));
           const alerts =[];
@@ -1691,8 +1709,8 @@
 
       const[robbyScheduled, setRobbyScheduled] = useState(getNextWorkoutId('Robby'));
       const[candiceScheduled, setCandiceScheduled] = useState(getNextWorkoutId('Candice'));
-      const [robbyRoutine, setRobbyRoutine] = useState(robbyScheduled);
-      const [candiceRoutine, setCandiceRoutine] = useState(candiceScheduled);
+      const[robbyRoutine, setRobbyRoutine] = useState(robbyScheduled);
+      const[candiceRoutine, setCandiceRoutine] = useState(candiceScheduled);
       const [showSpreadsheet, setShowSpreadsheet] = useState(null); 
       const [selectedHistory, setSelectedHistory] = useState(null);
 
@@ -1707,7 +1725,7 @@
          const rNext = getNextWorkoutId('Robby');
          setRobbyScheduled(rNext);
          setRobbyRoutine(rNext);
-      }, [workoutsDb, robbyRoutines]);
+      },[workoutsDb, robbyRoutines]);
       
       useEffect(() => { 
          const cNext = getNextWorkoutId('Candice');
@@ -1946,7 +1964,7 @@
                      
                      <div className="flex-1 overflow-y-auto w-full space-y-1 pr-1 text-sm">
                         {Object.entries(w.exercises).map(([exName, exData]) => {
-                           const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                           const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
                            const allSame = sets.every(s => s.weight === sets[0].weight && s.reps === sets[0].reps);
                            const desc = allSame && sets.length > 0 ? `${sets.length}s: ${sets[0].weight}x${sets[0].reps}` : sets.map(s => `${s.weight}x${s.reps}`).join(', ');
                            return (
@@ -1984,6 +2002,9 @@
                   onEditSession={(session) => {
                       setShowSpreadsheet(null);
                       onEditSession(session);
+                  }}
+                  onDeleteSession={(sessionId) => {
+                      onDeleteSession(sessionId);
                   }}
                   getActiveRoutines={getActiveRoutines}
               />
@@ -2083,7 +2104,7 @@
              if (editSession && editSession.user === username) {
                  const exData = editSession.exercises[ex.name];
                  if (exData) {
-                     const sets = Array.isArray(exData) ? exData : (exData.sets || []);
+                     const sets = Array.isArray(exData) ? exData : (exData.sets ||[]);
                      exercisesState[ex.name] = { 
                          weight: sets[0]?.weight || '', 
                          reps: sets[0]?.reps || '', 
@@ -2142,7 +2163,7 @@
         return initialState;
       });
 
-      const [enlargedImage, setEnlargedImage] = useState(null);
+      const[enlargedImage, setEnlargedImage] = useState(null);
 
       const updateExercise = (username, exerciseName, field, value) => {
         setSessionData(prev => {
